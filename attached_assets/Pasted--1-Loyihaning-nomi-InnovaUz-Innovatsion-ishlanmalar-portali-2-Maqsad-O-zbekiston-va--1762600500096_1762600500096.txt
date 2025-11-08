@@ -1,0 +1,103 @@
+🧩 1. Loyihaning nomi:
+
+“InnovaUz — Innovatsion ishlanmalar portali”
+
+🎯 2. Maqsad:
+
+O‘zbekiston va jahon miqyosidagi yangi innovatsion ishlanmalarni, ixtirolarni, ilmiy g‘oyalarni va ularning mualliflarini yorituvchi, maqolalar, yangiliklar, fotosuratlar va fayllarni kiritish va ko‘rish imkonini beruvchi zamonaviy, interaktiv va mobil mos veb-sayt yaratish.
+
+👥 3. Foydalanuvchi rollari:
+1. Super Admin
+
+Barcha ma’lumotlarni tahrirlash, o‘chirish, yangisini qo‘shish.
+
+Tahrirlovchi adminlarni qo‘shish va boshqarish.
+
+Foydalanuvchilar faoliyatini kuzatish.
+
+Sayt statistikasi (maqolalar soni, o‘quvchilar soni, eng ko‘p o‘qilgan maqolalar va h.k.)
+
+Fayllar va rasm omborini boshqarish.
+
+2. Tahrirlovchi Admin
+
+Yangilik, maqola, g‘oya yoki loyiha kiritish.
+
+Rasm, PDF, video yoki havolalarni joylash.
+
+Faqat o‘z kiritgan ma’lumotlarini tahrirlash va yangilash.
+
+3. Foydalanuvchi (oddiy ko‘ruvchi)
+
+Maqolalarni o‘qish, g‘oyalar bilan tanishish.
+
+Innovatsiyalarni izlash, filtrlash (mavzu, sana, muallif bo‘yicha).
+
+Fayllarni ko‘rish yoki yuklab olish (ruxsat doirasida).
+
+Fikr qoldirish (izoh tizimi bo‘lishi mumkin).
+
+🖥 4. Asosiy bo‘limlar va sahifalar tuzilmasi:
+🌐 Asosiy sahifalar:
+
+Bosh sahifa
+
+Oxirgi yangiliklar, tanlangan maqolalar, innovatsion g‘oyalar sliderda.
+
+“Eng ko‘p o‘qilgan” va “So‘nggi yangiliklar” bloklari.
+
+Innovatsiyalar bo‘limi
+
+Turlarga ajratilgan (Texnologiya, Tibbiyot, Ta’lim, Energetika, Startap va h.k.)
+
+Filtrlash va qidiruv tizimi.
+
+Maqolalar
+
+Har bir maqola uchun:
+
+Sarlavha
+
+Muallif ismi
+
+Sana
+
+Tavsif
+
+Matn (HTML editor bilan)
+
+Rasm va fayl biriktirish
+
+“O‘qish davom etsin” sahifasi
+
+“Share” (ulashish) funksiyasi: Telegram, Facebook, LinkedIn, Twitter orqali.
+
+Yangiliklar
+
+O‘zbekiston va jahon innovatsiyalari haqidagi qisqa yangiliklar.
+
+Tasvirlar va sana bilan.
+
+G‘oyalar (Loyihalar)
+
+Fikr va loyiha mualliflari tomonidan joylashtiriladigan qisqa taqdimot sahifalari.
+
+“Fikr bildirish” yoki “Qo‘llab-quvvatlash” tugmalari.
+
+Biz haqimizda
+
+Loyihaning maqsadi, jamoa a’zolari, aloqa ma’lumotlari.
+
+Ishlab chiquvchi tashkilot (masalan, SAYD.X) haqida qisqacha ma’lumot.
+
+Aloqa sahifasi
+
+Murojaat formasi (Ism, email, xabar)
+
+Manzil, telefon raqam, xarita (Google Map integratsiyasi).
+
+Fayllar va Rasmlar Galereyasi
+
+Fayl turlari: .pdf, .docx, .pptx, .jpg, .png
+
+Fayl haqida ma’lumot: nomi, tavsifi, yuklangan sana.
