@@ -60,7 +60,7 @@ export default function Header() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 pr-2">
             {searchOpen ? (
               <div className="flex items-center gap-2">
                 <Input
