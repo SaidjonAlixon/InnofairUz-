@@ -47,12 +47,12 @@ export default function Header() {
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-0">
             {navItems.map((item) => (
               <Link key={item.path} href={item.path} data-testid={`link-${item.id}`}>
                 <Button
                   variant={location === item.path ? "secondary" : "ghost"}
-                  className="font-medium leading-tight whitespace-normal text-center h-auto min-h-[44px] w-[140px] px-3 py-2"
+                  className="font-medium leading-tight whitespace-normal text-center h-auto min-h-[44px] w-[120px] px-2.5 py-2"
                 >
                   {item.name}
                 </Button>
