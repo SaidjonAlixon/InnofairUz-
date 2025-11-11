@@ -52,7 +52,7 @@ export default function Header() {
               <Link key={item.path} href={item.path} data-testid={`link-${item.id}`}>
                 <Button
                   variant={location === item.path ? "secondary" : "ghost"}
-                  className="font-medium"
+                  className="font-medium leading-tight whitespace-normal text-center h-auto min-h-[44px] w-[140px] px-3 py-2"
                 >
                   {item.name}
                 </Button>
@@ -142,7 +142,7 @@ export default function Header() {
               <Link key={item.path} href={item.path}>
                 <Button
                   variant={location === item.path ? "secondary" : "ghost"}
-                  className="w-full justify-start font-medium"
+                  className="w-full justify-start font-medium leading-tight whitespace-normal text-left h-auto min-h-[44px] py-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {item.name}
