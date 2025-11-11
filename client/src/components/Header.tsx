@@ -14,6 +14,7 @@ const navItems = [
   { id: "products", name: "Tijorat mahsulotlari", path: "/mahsulotlar" },
   { id: "solutions", name: "Hududiy yechimlar", path: "/yechimlar" },
   { id: "collab", name: "Hamkorlik va fikrlar", path: "/hamkorlik" },
+  { id: "admin", name: "Admin", path: "/admin/login" },
 ];
 
 export default function Header() {

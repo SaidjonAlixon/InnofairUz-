@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -17,6 +17,9 @@ import Products from "@/pages/Products";
 import Solutions from "@/pages/Solutions";
 import Collaboration from "@/pages/Ideas";
 import NotFound from "@/pages/not-found";
+import AdminLogin from "@/pages/admin/Login";
+import AdminDashboard from "@/pages/admin/Dashboard";
+import { AuthProvider } from "@/context/AuthContext";
 
 function Router() {
   return (
@@ -32,6 +35,8 @@ function Router() {
       <Route path="/mahsulotlar" component={Products} />
       <Route path="/yechimlar" component={Solutions} />
       <Route path="/hamkorlik" component={Collaboration} />
+      <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin" component={AdminDashboard} />
       <Route path="/aloqa" component={Contact} />
       <Route path="/haqimizda" component={About} />
       <Route component={NotFound} />
@@ -40,17 +45,22 @@ function Router() {
 }
 
 function App() {
+  const [location] = useLocation();
+  const isAdminRoute = location.startsWith("/admin");
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-1">
-            <Router />
-          </main>
-          <Footer />
-        </div>
-        <Toaster />
+        <AuthProvider>
+          <div className="flex flex-col min-h-screen">
+            {!isAdminRoute && <Header />}
+            <main className={`flex-1 ${isAdminRoute ? "bg-muted/20" : ""}`}>
+              <Router />
+            </main>
+            {!isAdminRoute && <Footer />}
+          </div>
+          <Toaster />
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
