@@ -4,6 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Building2, Handshake, LineChart } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/context/AuthContext";
+import { useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
 
 const investorSegments = [
   {
@@ -30,63 +33,54 @@ const partnershipSteps = [
   "Pilot loyihani boshlash va monitoring",
 ];
 
-type ChatRole = "investor" | "participant";
-
-interface ChatMessage {
-  id: number;
-  role: ChatRole;
-  text: string;
-  timestamp: string;
-}
-
-const roleLabels: Record<ChatRole, string> = {
-  investor: "Investor",
-  participant: "Ishtirokchi",
-};
-
-const getTimestamp = () =>
-  new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" });
-
 export default function InvestorsPage() {
-  const [messages, setMessages] = useState<ChatMessage[]>(() => [
+  const { user } = useAuth();
+  const [, navigate] = useLocation();
+  const { toast } = useToast();
+  const [messages, setMessages] = useState(() => [
     {
       id: 1,
-      role: "investor",
+      author: "Investor",
       text: "Assalomu alaykum! Bizga energiya tejamkor yechimlaringiz haqida ma'lumot qoldiring.",
-      timestamp: getTimestamp(),
-    },
-    {
-      id: 2,
-      role: "participant",
-      text: "Salom! Quyosh panellari monitoring tizimini taklif etamiz, prototip tayyor.",
-      timestamp: getTimestamp(),
+      timestamp: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
+      isInvestor: true,
     },
   ]);
-  const [investorMessage, setInvestorMessage] = useState("");
-  const [participantMessage, setParticipantMessage] = useState("");
+  const [message, setMessage] = useState("");
 
-  const sendMessage = (role: ChatRole, text: string) => {
-    const trimmed = text.trim();
+  const handleSendMessage = () => {
+    if (!user) {
+      toast({
+        title: "Kirish talab qilinadi",
+        description: "Investorlar bilan yozishish uchun tizimga kiring.",
+        variant: "destructive",
+      });
+      navigate("/auth/login");
+      return;
+    }
+
+    const trimmed = message.trim();
     if (!trimmed) return;
+
     setMessages((prev) => [
       ...prev,
       {
         id: prev.length + 1,
-        role,
+        author: user.fullName,
         text: trimmed,
-        timestamp: getTimestamp(),
+        timestamp: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
+        isInvestor: false,
+        avatar: user.avatar,
+      },
+      {
+        id: prev.length + 2,
+        author: "Investor",
+        text: "Rahmat! Bizning ekspertlar jamoamiz siz bilan tez orada bog'lanadi.",
+        timestamp: new Date().toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" }),
+        isInvestor: true,
       },
     ]);
-  };
-
-  const handleInvestorSend = () => {
-    sendMessage("investor", investorMessage);
-    setInvestorMessage("");
-  };
-
-  const handleParticipantSend = () => {
-    sendMessage("participant", participantMessage);
-    setParticipantMessage("");
+    setMessage("");
   };
 
   return (
@@ -159,9 +153,9 @@ export default function InvestorsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Investor va ishtirokchi uchun tezkor chat</CardTitle>
+            <CardTitle className="text-lg">Investorlar bilan chat</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Yarmarka davomida investorlar va g'oya mualliflari shu yerdan tezkor savol-javob qilishi, fayl va uchrashuvlar haqida kelishishi mumkin.
+              Investorlar va ishtirokchilar o'zaro fikr almashishi, uchrashuvlarni rejalashtirishi va savollar berishi mumkin.
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -169,17 +163,15 @@ export default function InvestorsPage() {
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex ${message.role === "investor" ? "justify-end" : "justify-start"}`}
+                  className={`flex ${message.isInvestor ? "justify-end" : "justify-start"}`}
                 >
                   <div
                     className={`max-w-[75%] rounded-lg px-4 py-3 shadow-sm ${
-                      message.role === "investor"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-background border"
+                      message.isInvestor ? "bg-primary text-primary-foreground" : "bg-background border"
                     }`}
                   >
                     <div className="text-xs font-semibold mb-1 opacity-80">
-                      {roleLabels[message.role]}
+                      {message.author}
                     </div>
                     <p className="text-sm whitespace-pre-wrap break-words">{message.text}</p>
                     <div className="text-[10px] opacity-70 mt-2 text-right">{message.timestamp}</div>
@@ -188,46 +180,42 @@ export default function InvestorsPage() {
               ))}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {user ? (
               <div className="space-y-2">
-                <div className="text-sm font-semibold">Investor javobi</div>
                 <Textarea
-                  placeholder="Masalan: Loyihaning biznes modeli haqida qo'shimcha ma'lumot bera olasizmi?"
-                  value={investorMessage}
-                  onChange={(e) => setInvestorMessage(e.target.value)}
+                  placeholder="Savolingiz yoki taklifingizni yozing..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                   className="min-h-[120px]"
-                  data-testid="textarea-investor-message"
+                  data-testid="textarea-user-message"
                 />
+                <div className="flex justify-between items-center text-xs text-muted-foreground">
+                  <span>{user.fullName} sifatida yozmoqdasiz</span>
+                </div>
                 <Button
-                  onClick={handleInvestorSend}
+                  onClick={handleSendMessage}
                   className="w-full md:w-auto"
-                  disabled={!investorMessage.trim()}
-                  data-testid="button-send-investor"
+                  disabled={!message.trim()}
+                  data-testid="button-send-message"
                 >
-                  Investor xabari
+                  Xabar yuborish
                 </Button>
               </div>
-
-              <div className="space-y-2">
-                <div className="text-sm font-semibold">Ishtirokchi javobi</div>
-                <Textarea
-                  placeholder="Masalan: Tizim quyosh panellari samaradorligini 18% gacha oshiradi."
-                  value={participantMessage}
-                  onChange={(e) => setParticipantMessage(e.target.value)}
-                  className="min-h-[120px]"
-                  data-testid="textarea-participant-message"
-                />
-                <Button
-                  onClick={handleParticipantSend}
-                  className="w-full md:w-auto"
-                  variant="outline"
-                  disabled={!participantMessage.trim()}
-                  data-testid="button-send-participant"
-                >
-                  Ishtirokchi xabari
-                </Button>
-              </div>
-            </div>
+            ) : (
+              <Card className="border-dashed border-primary/40 bg-card/40">
+                <CardContent className="py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+                  <p className="text-muted-foreground text-center sm:text-left">
+                    Investorlar bilan chatlashish uchun tizimga kiring yoki ro'yxatdan o'ting.
+                  </p>
+                  <div className="flex gap-2">
+                    <Button onClick={() => navigate("/auth/login")}>Kirish</Button>
+                    <Button variant="outline" onClick={() => navigate("/auth/register")}>
+                      Ro'yxatdan o'tish
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </CardContent>
         </Card>
 

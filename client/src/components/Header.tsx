@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
+import { useAuth } from "@/context/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const navItems = [
   { id: "home", name: "Bosh sahifa", path: "/" },
@@ -14,13 +16,23 @@ const navItems = [
   { id: "products", name: "Tijorat mahsulotlari", path: "/mahsulotlar" },
   { id: "solutions", name: "Hududiy yechimlar", path: "/yechimlar" },
   { id: "collab", name: "Hamkorlik va fikrlar", path: "/hamkorlik" },
-  { id: "admin", name: "Admin", path: "/admin/login" },
 ];
 
 export default function Header() {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const { user, logout } = useAuth();
+
+  const handleLogin = () => {
+    navigate("/auth/login");
+    setMobileMenuOpen(false);
+  };
+
+  const handleRegister = () => {
+    navigate("/auth/register");
+    setMobileMenuOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -80,6 +92,38 @@ export default function Header() {
             
             <ThemeToggle />
 
+            {!user && (
+              <>
+                <Button variant="default" onClick={handleLogin} data-testid="button-user-login">
+                  Kirish
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleRegister}
+                  data-testid="button-user-register"
+                  className="hidden lg:inline-flex"
+                >
+                  Ro'yhatdan o'tish
+                </Button>
+              </>
+            )}
+
+            {user && (
+              <div className="hidden lg:flex items-center gap-3 pl-3">
+                <div className="text-right">
+                  <p className="text-sm font-semibold leading-tight">{user.fullName}</p>
+                  <p className="text-xs text-muted-foreground lowercase">@{user.username}</p>
+                </div>
+                <Avatar className="h-9 w-9">
+                  {user.avatar ? <AvatarImage src={user.avatar} /> : null}
+                  <AvatarFallback>{user.fullName?.[0] ?? "U"}</AvatarFallback>
+                </Avatar>
+                <Button variant="ghost" size="sm" onClick={logout} data-testid="button-user-logout">
+                  Chiqish
+                </Button>
+              </div>
+            )}
+
             <Button
               size="icon"
               variant="ghost"
@@ -105,6 +149,32 @@ export default function Header() {
                 </Button>
               </Link>
             ))}
+            {!user ? (
+              <>
+                <Button className="w-full" onClick={handleLogin}>
+                  Kirish
+                </Button>
+                <Button variant="outline" className="w-full" onClick={handleRegister}>
+                  Ro'yhatdan o'tish
+                </Button>
+              </>
+            ) : (
+              <div className="flex flex-col gap-2 w-full border-t pt-4 mt-2">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-8 w-8">
+                    {user.avatar ? <AvatarImage src={user.avatar} /> : null}
+                    <AvatarFallback>{user.fullName?.[0] ?? "U"}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-semibold leading-tight">{user.fullName}</p>
+                    <p className="text-xs text-muted-foreground lowercase">@{user.username}</p>
+                  </div>
+                </div>
+                <Button variant="outline" onClick={() => logout()} data-testid="button-user-logout-mobile">
+                  Chiqish
+                </Button>
+              </div>
+            )}
           </nav>
         )}
       </div>

@@ -19,6 +19,9 @@ import Collaboration from "@/pages/Ideas";
 import NotFound from "@/pages/not-found";
 import AdminLogin from "@/pages/admin/Login";
 import AdminDashboard from "@/pages/admin/Dashboard";
+import AdminRegister from "@/pages/admin/Register";
+import UserLogin from "@/pages/auth/Login";
+import UserRegister from "@/pages/auth/Register";
 import { AuthProvider } from "@/context/AuthContext";
 
 function Router() {
@@ -35,7 +38,10 @@ function Router() {
       <Route path="/mahsulotlar" component={Products} />
       <Route path="/yechimlar" component={Solutions} />
       <Route path="/hamkorlik" component={Collaboration} />
+      <Route path="/auth/login" component={UserLogin} />
+      <Route path="/auth/register" component={UserRegister} />
       <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin/register" component={AdminRegister} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/aloqa" component={Contact} />
       <Route path="/haqimizda" component={About} />

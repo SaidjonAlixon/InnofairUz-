@@ -6,6 +6,7 @@ type AuthUser = Omit<User, "password"> | null;
 type AuthContextValue = {
   user: AuthUser;
   login: (credentials: { username: string; password: string }) => Promise<void>;
+  register: (payload: { username: string; password: string; fullName: string; avatar?: string }) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
   error: string | null;
@@ -13,19 +14,22 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const STORAGE_KEY = "innofairuz_admin_user";
+const STORAGE_KEY = "innofairuz_user";
+const LEGACY_KEYS = ["innofairuz_user", "innofairuz_admin_user"];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser>(() => {
     if (typeof window === "undefined") return null;
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (!stored) return null;
-    try {
-      return JSON.parse(stored) as AuthUser;
-    } catch (error) {
-      console.warn("Failed to parse stored auth user", error);
-      return null;
+    for (const key of LEGACY_KEYS) {
+      const stored = window.localStorage.getItem(key);
+      if (!stored) continue;
+      try {
+        return JSON.parse(stored) as AuthUser;
+      } catch (error) {
+        console.warn("Failed to parse stored auth user", error);
+      }
     }
+    return null;
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +41,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
       window.localStorage.removeItem(STORAGE_KEY);
     }
+    LEGACY_KEYS.filter((key) => key !== STORAGE_KEY).forEach((key) =>
+      window.localStorage.removeItem(key),
+    );
   }, [user]);
 
   const login = async ({ username, password }: { username: string; password: string }) => {
@@ -68,6 +75,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const register = async ({
+    username,
+    password,
+    fullName,
+    avatar,
+  }: {
+    username: string;
+    password: string;
+    fullName: string;
+    avatar?: string;
+  }) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password, fullName, avatar }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload?.error || "Ro'yxatdan o'tish muvaffaqiyatsiz");
+      }
+
+      const data = (await response.json()) as { user: AuthUser };
+      if (!data?.user) {
+        throw new Error("Ro'yxatdan o'tish javobi noto'g'ri");
+      }
+
+      setUser(data.user);
+    } catch (err: any) {
+      setError(err.message || "Ro'yxatdan o'tish xatosi");
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = () => {
     setUser(null);
   };
@@ -76,6 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       user,
       login,
+      register,
       logout,
       isLoading,
       error,
