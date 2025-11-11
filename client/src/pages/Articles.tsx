@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Article, Category, User } from "@shared/schema";
 import ArticleCard from "@/components/ArticleCard";
-import CategoryFilter from "@/components/CategoryFilter";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
@@ -24,8 +23,6 @@ const categoryImages: Record<string, string> = {
 
 export default function Articles() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
   const { data: articles = [], isLoading } = useQuery<Article[]>({
     queryKey: ["/api/articles"],
     select: (data) => data.filter(a => a.published),
@@ -67,9 +64,7 @@ export default function Articles() {
       article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       article.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesCategory = !selectedCategory || article.categoryId === selectedCategory;
-    
-    return matchesSearch && matchesCategory;
+    return matchesSearch;
   });
 
   const displayArticles = filteredArticles.map(article => ({
@@ -102,24 +97,22 @@ export default function Articles() {
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8 space-y-8">
         <div className="space-y-4">
-          <h1 className="text-4xl font-bold">Barcha maqolalar</h1>
+          <h1 className="text-4xl font-bold">Loyihalar va g'oyalar ma'lumotnomasi</h1>
           <p className="text-lg text-muted-foreground">
-            Innovatsiya va texnologiya haqida eng so'nggi maqolalar
+            Yarmarka doirasidagi loyihalar, ilmiy ishlanmalar va startaplar haqida batafsil ma'lumotlar, filtrlash va qidiruv imkoniyatlari bilan.
           </p>
         </div>
 
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Maqolalarni qidirish..."
+            placeholder="Loyiha, muallif yoki yo'nalish bo'yicha qidirish..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
             data-testid="input-search-articles"
           />
         </div>
-
-        <CategoryFilter />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayArticles.length > 0 ? (

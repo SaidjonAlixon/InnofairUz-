@@ -10,23 +10,23 @@ const slides = [
   {
     id: 1,
     image: heroImage1,
-    category: "Texnologiya",
-    title: "Sun'iy intellekt sohasidagi yangi yutuqlar",
-    description: "O'zbekiston olimlari tomonidan ishlab chiqilgan AI tizimi jahon e'tirofiga sazovor bo'ldi",
+    category: "InnofairUz 2025",
+    title: "Hududiy innovatsion yarmarka onlayn formatda",
+    description: "Tadbirlar taqvimi, ishtirokchilar va pitch sessiyalar yagona platformada to'plandi.",
   },
   {
     id: 2,
     image: heroImage2,
-    category: "Robotexnika",
-    title: "Zamonaviy robotlar ishlab chiqarish sanoatida",
-    description: "Mahalliy ishlab chiquvchilar tomonidan yaratilgan robotlar samaradorlikni oshirmoqda",
+    category: "Investorlar maydoni",
+    title: "Tayyor loyihalar va hamkorlik takliflari bilan tanishing",
+    description: "Startaplar, ilmiy markazlar va ishlab chiqaruvchilar uchun investitsiya imkoniyatlari.",
   },
   {
     id: 3,
     image: heroImage3,
-    category: "Tibbiyot",
-    title: "Tibbiyotda yangi diagnostika usullari",
-    description: "Innovatsion tibbiy asboblar kasalliklarni erta aniqlashga yordam beradi",
+    category: "Media & Master-klasslar",
+    title: "Ekspertlar bilan intervyular va muvaffaqiyatli tajribalar",
+    description: "Video kutubxona, master-klasslar va mentorlik sessiyalari onlayn efirda.",
   },
 ];
 

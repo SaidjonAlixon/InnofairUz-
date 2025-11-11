@@ -1,4 +1,4 @@
-# InnovaUz - Innovatsion Ishlanmalar Portali: Design Guidelines
+# InnofairUz - Mintaqaviy Innovatsion Yarmarka Platformasi: Design Guidelines
 
 ## Design Approach
 

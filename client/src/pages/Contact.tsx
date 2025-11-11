@@ -32,7 +32,7 @@ export default function Contact() {
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">Biz bilan bog'laning</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Savollaringiz yoki takliflaringiz bo'lsa, biz bilan bog'lanishdan tortinmang. Jamoamiz sizga yordam berishga doim tayyor!
+              InnofairUz yarmakasi bo'yicha savollar, hamkorlik takliflari yoki media so'roqlari bo'lsa, biz bilan bevosita bog'laning — jamoamiz tezkor javob qaytaradi.
             </p>
           </div>
 
@@ -72,8 +72,8 @@ export default function Contact() {
                 <CardTitle className="text-lg">Email</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">info@innovauz.uz</p>
-                <p className="text-muted-foreground">support@innovauz.uz</p>
+                <p className="text-muted-foreground">info@innofairuz.uz</p>
+                <p className="text-muted-foreground">partnership@innofairuz.uz</p>
               </CardContent>
             </Card>
           </div>
@@ -146,7 +146,7 @@ export default function Contact() {
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    title="InnovaUz Location"
+                    title="InnofairUz Location"
                   />
                 </div>
               </CardContent>

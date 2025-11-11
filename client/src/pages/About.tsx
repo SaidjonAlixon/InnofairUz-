@@ -57,14 +57,14 @@ export default function About() {
           <div className="text-center mb-16">
             <h1 className="text-4xl font-bold mb-4">Biz haqimizda</h1>
             <p className="text-lg text-muted-foreground">
-              InnovaUz - O'zbekiston va jahon miqyosidagi innovatsion ishlanmalar, ixtirolar va ilmiy g'oyalarni yorituvchi yetakchi platforma
+              InnofairUz — mintaqaviy innovatsion yarmarkani raqamli formatda birlashtiruvchi platforma. Bu yerda g'oyalar, tadbirlar va hamkorliklar uchrashadi.
             </p>
           </div>
 
           <div className="aspect-video w-full overflow-hidden rounded-lg mb-16">
             <img
               src={teamImage}
-              alt="InnovaUz jamoasi"
+              alt="InnofairUz jamoasi"
               className="w-full h-full object-cover"
             />
           </div>
@@ -97,13 +97,13 @@ export default function About() {
             <h2 className="text-3xl font-bold mb-4">Bizning missiyamiz</h2>
             <div className="prose prose-lg dark:prose-invert max-w-none">
               <p>
-                InnovaUz platformasi O'zbekistonda innovatsion g'oyalar va ishlanmalarni rivojlantirishga, ularni keng jamoatchilikka yetkazishga va investorlar bilan bog'lashga yordam beradi.
+                InnofairUz platformasi hududlar kesimida o'tkaziladigan innovatsion yarmarkalarni yagona raqamli makonda to'plash, ishtirokchilar o'rtasida tezkor axborot almashuvini ta'minlash va hamkorlik imkoniyatlarini kengaytirish uchun yaratilgan.
               </p>
               <p>
-                Biz ilm-fan, texnologiya va innovatsiya sohasidagi eng so'nggi yutuqlar haqida ma'lumot beramiz, tadqiqotchilar va ixtirochilar uchun o'z ishlarini namoyish etish imkoniyatini yaratamiz.
+                Biz foydalanuchilarga tadbirlar taqvimi, innovatsion loyihalar ma'lumotnomalari, investitsion takliflar va hududiy muammolar bo'yicha yechimlar bazasini taqdim etamiz. Har bir loyiha bo'yicha media kontent, tajribalar va ekspert fikrlari jamlangan.
               </p>
               <p>
-                Platformamiz orqali minglab innovator, tadqiqotchi va innovatsiya ishqibozlari bir-birlari bilan bog'lanib, yangi g'oyalarni hayotga tatbiq etishadi.
+                Platforma orqali g'oya mualliflari, investorlar, davlat tashkilotlari va sanoat vakillari o'zaro muloqot qilib, tijoratlashtirishga tayyor yechimlarni birgalikda hayotga tatbiq etishadi.
               </p>
             </div>
           </div>
@@ -131,7 +131,7 @@ export default function About() {
               <CardContent className="pt-6">
                 <h3 className="text-2xl font-bold mb-4">SAYD.X</h3>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                  InnovaUz platformasi SAYD.X texnologiya kompaniyasi tomonidan ishlab chiqilgan va qo'llab-quvvatlanmoqda. SAYD.X - innovatsion yechimlar yaratish va raqamli transformatsiyaga ixtisoslashgan yetakchi IT kompaniya.
+                  InnofairUz platformasi SAYD.X texnologiya kompaniyasi tomonidan ishlab chiqilgan va qo'llab-quvvatlanadi. Kompaniya innovatsion yechimlar yaratish va raqamli transformatsiyani amalga oshirishda yetakchi tajribaga ega.
                 </p>
               </CardContent>
             </Card>

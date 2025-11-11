@@ -1,24 +1,25 @@
 import { Link, useLocation } from "wouter";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 
+const navItems = [
+  { id: "home", name: "Bosh sahifa", path: "/" },
+  { id: "events", name: "Tadbirlar taqvimi", path: "/tadbirlar" },
+  { id: "projects", name: "Loyihalar va g'oyalar", path: "/loyihalar" },
+  { id: "investors", name: "Investorlar va sheriklar", path: "/investorlar" },
+  { id: "media", name: "Media markaz", path: "/media" },
+  { id: "products", name: "Tijorat mahsulotlari", path: "/mahsulotlar" },
+  { id: "solutions", name: "Hududiy yechimlar", path: "/yechimlar" },
+  { id: "collab", name: "Hamkorlik va fikrlar", path: "/hamkorlik" },
+];
+
 export default function Header() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-
-  const navItems = [
-    { name: "Bosh sahifa", path: "/" },
-    { name: "Innovatsiyalar", path: "/innovatsiyalar" },
-    { name: "Maqolalar", path: "/maqolalar" },
-    { name: "Yangiliklar", path: "/yangiliklar" },
-    { name: "G'oyalar", path: "/goyalar" },
-    { name: "Biz haqimizda", path: "/haqimizda" },
-    { name: "Aloqa", path: "/aloqa" },
-  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -26,16 +27,16 @@ export default function Header() {
         <div className="flex h-16 items-center justify-between">
           <Link href="/" data-testid="link-home">
             <div className="flex items-center gap-2 hover-elevate active-elevate-2 rounded-md px-3 py-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-lg">
-                I
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 via-blue-500 to-blue-600 text-white shadow-sm">
+                <Lightbulb className="h-5 w-5" />
               </div>
-              <span className="text-xl font-bold">InnovaUz</span>
+              <span className="text-xl font-bold">InnofairUz</span>
             </div>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1">
             {navItems.map((item) => (
-              <Link key={item.path} href={item.path} data-testid={`link-${item.name.toLowerCase()}`}>
+              <Link key={item.path} href={item.path} data-testid={`link-${item.id}`}>
                 <Button
                   variant={location === item.path ? "secondary" : "ghost"}
                   className="font-medium"

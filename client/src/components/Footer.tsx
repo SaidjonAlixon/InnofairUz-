@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Facebook, Linkedin, Twitter, Send } from "lucide-react";
+import { Facebook, Linkedin, Twitter, Send, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -10,13 +10,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-lg">
-                I
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 via-blue-500 to-blue-600 text-white shadow-sm">
+                <Lightbulb className="h-5 w-5" />
               </div>
-              <span className="text-xl font-bold">InnovaUz</span>
+              <span className="text-xl font-bold">InnofairUz</span>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              O'zbekiston va jahon miqyosidagi innovatsion ishlanmalar, ixtirolar va ilmiy g'oyalar portali
+              Mintaqaviy innovatsion yarmarka platformasi: tadbirlar, loyihalar va hamkorlik imkoniyatlari yagona ekotizimda.
             </p>
             <div className="flex gap-2">
               <Button size="icon" variant="ghost" data-testid="button-facebook">
@@ -45,23 +45,23 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/innovatsiyalar" data-testid="link-footer-innovations">
+                <Link href="/tadbirlar" data-testid="link-footer-events">
                   <Button variant="ghost" className="h-auto p-0 text-muted-foreground hover:text-foreground">
-                    Innovatsiyalar
+                    Tadbirlar taqvimi
                   </Button>
                 </Link>
               </li>
               <li>
-                <Link href="/maqolalar" data-testid="link-footer-articles">
+                <Link href="/investorlar" data-testid="link-footer-investors">
                   <Button variant="ghost" className="h-auto p-0 text-muted-foreground hover:text-foreground">
-                    Maqolalar
+                    Investorlar va sheriklar
                   </Button>
                 </Link>
               </li>
               <li>
-                <Link href="/yangiliklar" data-testid="link-footer-news">
+                <Link href="/hamkorlik" data-testid="link-footer-collaboration">
                   <Button variant="ghost" className="h-auto p-0 text-muted-foreground hover:text-foreground">
-                    Yangiliklar
+                    Hamkorlik va fikrlar
                   </Button>
                 </Link>
               </li>
@@ -69,31 +69,31 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Turkumlar</h3>
+            <h3 className="font-semibold mb-4">Platforma yo'nalishlari</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Button variant="ghost" className="h-auto p-0 text-muted-foreground hover:text-foreground">
-                  Texnologiya
+                  Innovatsion loyihalar
                 </Button>
               </li>
               <li>
                 <Button variant="ghost" className="h-auto p-0 text-muted-foreground hover:text-foreground">
-                  Tibbiyot
+                  Investitsiya takliflari
                 </Button>
               </li>
               <li>
                 <Button variant="ghost" className="h-auto p-0 text-muted-foreground hover:text-foreground">
-                  Ta'lim
+                  Tijorat mahsulotlari
                 </Button>
               </li>
               <li>
                 <Button variant="ghost" className="h-auto p-0 text-muted-foreground hover:text-foreground">
-                  Energetika
+                  Hududiy muammolar
                 </Button>
               </li>
               <li>
                 <Button variant="ghost" className="h-auto p-0 text-muted-foreground hover:text-foreground">
-                  Startap
+                  Hamkorlik maydoni
                 </Button>
               </li>
             </ul>
@@ -102,7 +102,7 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Yangiliklar obunasi</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Eng so'nggi innovatsiyalar haqida xabardor bo'ling
+              Yarmarka yangiliklari va yangi hamkorlik takliflaridan xabardor bo'ling
             </p>
             <div className="flex gap-2">
               <Input
@@ -116,7 +116,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; 2025 InnovaUz. Barcha huquqlar himoyalangan. Ishlab chiquvchi: SAYD.X</p>
+          <p>&copy; 2025 InnofairUz. Barcha huquqlar himoyalangan. Ishlab chiquvchi: SAYD.X</p>
         </div>
       </div>
     </footer>

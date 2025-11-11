@@ -5,26 +5,26 @@ const stats = [
   {
     id: 1,
     icon: FileText,
-    value: "1,250+",
-    label: "Maqolalar",
+    value: "320+",
+    label: "Loyiha pasportlari",
   },
   {
     id: 2,
     icon: Lightbulb,
-    value: "850+",
-    label: "Innovatsiyalar",
+    value: "180+",
+    label: "Tijorat mahsulotlari",
   },
   {
     id: 3,
     icon: Users,
-    value: "45,000+",
-    label: "O'quvchilar",
+    value: "90+",
+    label: "Investor va hamkorlar",
   },
   {
     id: 4,
     icon: TrendingUp,
-    value: "95%",
-    label: "O'sish",
+    value: "60+",
+    label: "Hududiy yechimlar",
   },
 ];
 

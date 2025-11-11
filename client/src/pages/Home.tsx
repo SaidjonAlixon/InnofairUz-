@@ -1,5 +1,4 @@
 import HeroSlider from "@/components/HeroSlider";
-import CategoryFilter from "@/components/CategoryFilter";
 import ArticleCard from "@/components/ArticleCard";
 import NewsCard from "@/components/NewsCard";
 import InnovationCard from "@/components/InnovationCard";
@@ -99,17 +98,30 @@ export default function Home() {
     readTime: article.readTime,
   }));
 
-  const displayNews = newsList.map(item => ({
-    id: item.id,
-    image: getImageForCategory(item.categoryId),
-    category: getCategoryName(item.categoryId),
-    title: item.title,
-    date: new Date(item.createdAt).toLocaleDateString('uz-UZ', { 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric' 
-    }),
-  }));
+  const displayNews = [
+    ...newsList.map(item => ({
+      id: item.id,
+      image: getImageForCategory(item.categoryId),
+      category: getCategoryName(item.categoryId),
+      title: item.title,
+      date: new Date(item.createdAt).toLocaleDateString('uz-UZ', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+      }),
+    })),
+    {
+      id: "innofairuz-bootcamp",
+      image: startupImage,
+      category: "Startap",
+      title: "InnofairUz bootcamp: mentorlik sessiyalari uchun ro'yxat boshlandi",
+      date: new Date("2025-04-02").toLocaleDateString('uz-UZ', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+      }),
+    }
+  ];
 
   const displayInnovations = innovations.map(innovation => ({
     id: innovation.id,
@@ -128,36 +140,9 @@ export default function Home() {
         <HeroSlider />
 
         <section>
-          <h2 className="text-2xl font-bold mb-6">Turkumlar</h2>
-          <CategoryFilter />
-        </section>
-
-        <section>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">Eng ko'p o'qilgan maqolalar</h2>
-            <Link href="/maqolalar">
-              <Button variant="ghost" className="gap-1" data-testid="button-view-all-articles">
-                Barchasi <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayArticles.length > 0 ? (
-              displayArticles.map((article) => (
-                <ArticleCard key={article.id} {...article} />
-              ))
-            ) : (
-              <p className="col-span-3 text-center text-muted-foreground py-12">
-                Hozircha maqolalar mavjud emas
-              </p>
-            )}
-          </div>
-        </section>
-
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">So'nggi yangiliklar</h2>
-            <Link href="/yangiliklar">
+            <h2 className="text-2xl font-bold">Tadbirlar va e'lonlar</h2>
+            <Link href="/tadbirlar">
               <Button variant="ghost" className="gap-1" data-testid="button-view-all-news">
                 Barchasi <ArrowRight className="h-4 w-4" />
               </Button>
@@ -170,7 +155,7 @@ export default function Home() {
               ))
             ) : (
               <p className="col-span-3 text-center text-muted-foreground py-12">
-                Hozircha yangiliklar mavjud emas
+                Hozircha e'lon qilingan tadbirlar mavjud emas
               </p>
             )}
           </div>
@@ -178,8 +163,30 @@ export default function Home() {
 
         <section>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">Innovatsion g'oyalar va loyihalar</h2>
-            <Link href="/goyalar">
+            <h2 className="text-2xl font-bold">Loyihalar va g'oyalar katalogi</h2>
+            <Link href="/loyihalar">
+              <Button variant="ghost" className="gap-1" data-testid="button-view-all-articles">
+                Barchasi <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayArticles.length > 0 ? (
+              displayArticles.map((article) => (
+                <ArticleCard key={article.id} {...article} />
+              ))
+            ) : (
+              <p className="col-span-3 text-center text-muted-foreground py-12">
+                Hozircha ro'yxatga olingan loyihalar mavjud emas
+              </p>
+            )}
+          </div>
+        </section>
+
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold">Tijorat mahsulotlari va prototiplar</h2>
+            <Link href="/mahsulotlar">
               <Button variant="ghost" className="gap-1" data-testid="button-view-all-innovations">
                 Barchasi <ArrowRight className="h-4 w-4" />
               </Button>
@@ -192,19 +199,19 @@ export default function Home() {
               ))
             ) : (
               <p className="col-span-3 text-center text-muted-foreground py-12">
-                Hozircha innovatsiyalar mavjud emas
+                Hozircha tijorat mahsulotlari mavjud emas
               </p>
             )}
           </div>
         </section>
 
         <section className="bg-gradient-to-r from-primary/10 via-primary/5 to-background rounded-lg p-8 lg:p-12 text-center">
-          <h2 className="text-3xl font-bold mb-4">O'z innovatsiyangizni joylashtiring!</h2>
+          <h2 className="text-3xl font-bold mb-4">O'z g'oyangizni InnofairUz sahnasida taqdim eting!</h2>
           <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Sizning innovatsion g'oyaleringiz va loyihalaringiz minglab odamlarga ilhom berishi mumkin. Hoziroq platformamizga qo'shing!
+            G'oya pasportini yuklang, ekspertlar bahosini oling va investorlar bilan uchrashuvni rejalashtiring. InnofairUz sizni hududiy yarmarkalar sahnasiga olib chiqadi.
           </p>
           <Button size="lg" data-testid="button-submit-innovation">
-            Innovatsiya joylashtirish
+            Loyiha yuborish
           </Button>
         </section>
 
