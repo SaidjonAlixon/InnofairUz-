@@ -14,7 +14,6 @@ export default function UserRegister() {
     username: "",
     password: "",
     fullName: "",
-    avatar: "",
   });
 
   if (user) {
@@ -25,7 +24,7 @@ export default function UserRegister() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      await register(form);
+      await register({ ...form });
       navigate("/");
     } catch (err) {
       // context handles error
@@ -74,15 +73,6 @@ export default function UserRegister() {
                 value={form.password}
                 onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
                 required
-              />
-            </div>
-            <div>
-              <Label htmlFor="register-avatar">Profil rasmi (ixtiyoriy, URL)</Label>
-              <Input
-                id="register-avatar"
-                value={form.avatar}
-                onChange={(event) => setForm((prev) => ({ ...prev, avatar: event.target.value }))}
-                placeholder="https://..."
               />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
