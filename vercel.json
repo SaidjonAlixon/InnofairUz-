@@ -4,7 +4,7 @@
   "outputDirectory": "dist/public",
   "functions": {
     "api/index.ts": {
-      "runtime": "vercel-nodejs@4.0.0"
+      "runtime": "@vercel/node@3.2.29"
     }
   },
   "routes": [
