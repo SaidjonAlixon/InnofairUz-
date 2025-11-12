@@ -54,7 +54,13 @@ export default function Header() {
                   variant={location === item.path ? "secondary" : "ghost"}
                   className="font-medium leading-tight whitespace-normal text-center h-auto min-h-[44px] w-[120px] px-2.5 py-2"
                 >
-                  {item.name}
+                  {item.id === "media" ? (
+                    <>
+                      Media<br />markaz
+                    </>
+                  ) : (
+                    item.name
+                  )}
                 </Button>
               </Link>
             ))}
@@ -145,7 +151,13 @@ export default function Header() {
                   className="w-full justify-start font-medium leading-tight whitespace-normal text-left h-auto min-h-[44px] py-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  {item.name}
+                  {item.id === "media" ? (
+                    <>
+                      Media<br />markaz
+                    </>
+                  ) : (
+                    item.name
+                  )}
                 </Button>
               </Link>
             ))}
