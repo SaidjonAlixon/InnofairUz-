@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Category, Innovation, User } from "@shared/schema";
 import InnovationCard from "@/components/InnovationCard";
@@ -137,7 +137,7 @@ export default function CollaborationPage() {
           </Badge>
           <h1 className="text-4xl font-bold">Hamkorlik va fikrlar maydoni</h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            InnofairUz ishtirokchilari g'oya statusini muhokama qiladi, sherik topadi va savol-javoblar orqali hamkorlikni mustahkamlaydi.
+            inno-fair.uz ishtirokchilari g'oya statusini muhokama qiladi, sherik topadi va savol-javoblar orqali hamkorlikni mustahkamlaydi.
           </p>
         </div>
 
@@ -206,9 +206,9 @@ export default function CollaborationPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground">
-                <p>• Har bir fikr konstruktiv va aniq maqsadga yo'naltirilgan bo'lsin.</p>
-                <p>• G'oya muallifining mualliflik huquqlariga hurmat bilan yondoshing.</p>
-                <p>• Hamkorlik takliflarida bog'lanish ma'lumotlarini qoldirishni unutmang.</p>
+                <p>РІР‚Сћ Har bir fikr konstruktiv va aniq maqsadga yo'naltirilgan bo'lsin.</p>
+                <p>РІР‚Сћ G'oya muallifining mualliflik huquqlariga hurmat bilan yondoshing.</p>
+                <p>РІР‚Сћ Hamkorlik takliflarida bog'lanish ma'lumotlarini qoldirishni unutmang.</p>
               </CardContent>
             </Card>
 
@@ -217,9 +217,9 @@ export default function CollaborationPage() {
                 <CardTitle>Hamkor topish bo'yicha ko'rsatmalar</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground">
-                <p>• G'oyangizning bosqichini va kerakli resurslarni ko'rsating.</p>
-                <p>• Qaysi hudud yoki soha uchun yechim taklif qilayotganingizni aniq yozing.</p>
-                <p>• Uchrashuv uchun qulay vaqt va formatni taklif qiling.</p>
+                <p>РІР‚Сћ G'oyangizning bosqichini va kerakli resurslarni ko'rsating.</p>
+                <p>РІР‚Сћ Qaysi hudud yoki soha uchun yechim taklif qilayotganingizni aniq yozing.</p>
+                <p>РІР‚Сћ Uchrashuv uchun qulay vaqt va formatni taklif qiling.</p>
               </CardContent>
             </Card>
           </div>
@@ -228,9 +228,9 @@ export default function CollaborationPage() {
 
       <div className="container mx-auto px-4 pb-12 space-y-10">
         <div className="text-center space-y-4">
-          <h2 className="text-3xl font-bold">InnofairUz haqida</h2>
+          <h2 className="text-3xl font-bold">inno-fair.uz haqida</h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            InnofairUz — mintaqaviy innovatsion yarmarka platformasi. Hamkorlik sahifasidayoq bizning qadriyatlarimiz, missiyamiz va jamoamiz bilan tanishib,
+            inno-fair.uz РІР‚вЂќ mintaqaviy innovatsion yarmarka platformasi. Hamkorlik sahifasidayoq bizning qadriyatlarimiz, missiyamiz va jamoamiz bilan tanishib,
             g'oyangizni qanday qo'llab-quvvatlashimizni bilib olishingiz mumkin.
           </p>
         </div>
@@ -254,11 +254,11 @@ export default function CollaborationPage() {
           </CardHeader>
           <CardContent className="space-y-3 text-muted-foreground">
             <p>
-              InnofairUz platformasi hududiy innovatsion tashabbuslarni raqamli makonda birlashtirib, ularni tezkor axborot almashuvi, ekspertiza va investitsiya
+              inno-fair.uz platformasi hududiy innovatsion tashabbuslarni raqamli makonda birlashtirib, ularni tezkor axborot almashuvi, ekspertiza va investitsiya
               imkoniyatlari bilan ta'minlaydi. Biz g'oyalarni tijorat mahsulotiga aylantirishga ko'maklashamiz.
             </p>
             <p>
-              Hamkorlik sahifasi orqali siz fikr bildirishingiz, sherik topishingiz va jamoamiz bilan to'g'ridan-to'g'ri aloqaga chiqishingiz mumkin — barcha ma'lumotlar
+              Hamkorlik sahifasi orqali siz fikr bildirishingiz, sherik topishingiz va jamoamiz bilan to'g'ridan-to'g'ri aloqaga chiqishingiz mumkin РІР‚вЂќ barcha ma'lumotlar
               shu yerda jamlangan.
             </p>
           </CardContent>
@@ -315,8 +315,8 @@ export default function CollaborationPage() {
               </div>
               <div>
                 <h4 className="font-semibold">Elektron pochta</h4>
-                <p className="text-sm text-muted-foreground">info@innofairuz.uz</p>
-                <p className="text-sm text-muted-foreground">partnership@innofairuz.uz</p>
+                <p className="text-sm text-muted-foreground">info@inno-fair.uz.uz</p>
+                <p className="text-sm text-muted-foreground">partnership@inno-fair.uz.uz</p>
               </div>
             </div>
           </CardContent>
@@ -326,4 +326,7 @@ export default function CollaborationPage() {
     </div>
   );
 }
+
+
+
 

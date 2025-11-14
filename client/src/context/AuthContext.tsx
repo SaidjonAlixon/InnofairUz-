@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+﻿import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { User } from "@shared/schema";
 
 type AuthUser = Omit<User, "password"> | null;
@@ -14,8 +14,8 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const STORAGE_KEY = "innofairuz_user";
-const LEGACY_KEYS = ["innofairuz_user", "innofairuz_admin_user"];
+const STORAGE_KEY = "inno-fair.uz_user";
+const LEGACY_KEYS = ["inno-fair.uz_user", "inno-fair.uz_admin_user"];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser>(() => {
@@ -140,3 +140,6 @@ export function useAuth() {
   }
   return context;
 }
+
+
+

@@ -1,4 +1,4 @@
-import { Target, Users, Lightbulb, Award } from "lucide-react";
+﻿import { Target, Users, Lightbulb, Award } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import teamImage from "@assets/generated_images/Team_collaboration_photo_157623c8.png";
@@ -57,14 +57,14 @@ export default function About() {
           <div className="text-center mb-16">
             <h1 className="text-4xl font-bold mb-4">Biz haqimizda</h1>
             <p className="text-lg text-muted-foreground">
-              InnofairUz — mintaqaviy innovatsion yarmarkani raqamli formatda birlashtiruvchi platforma. Bu yerda g'oyalar, tadbirlar va hamkorliklar uchrashadi.
+              inno-fair.uz РІР‚вЂќ mintaqaviy innovatsion yarmarkani raqamli formatda birlashtiruvchi platforma. Bu yerda g'oyalar, tadbirlar va hamkorliklar uchrashadi.
             </p>
           </div>
 
           <div className="aspect-video w-full overflow-hidden rounded-lg mb-16">
             <img
               src={teamImage}
-              alt="InnofairUz jamoasi"
+              alt="inno-fair.uz jamoasi"
               className="w-full h-full object-cover"
             />
           </div>
@@ -97,7 +97,7 @@ export default function About() {
             <h2 className="text-3xl font-bold mb-4">Bizning missiyamiz</h2>
             <div className="prose prose-lg dark:prose-invert max-w-none">
               <p>
-                InnofairUz platformasi hududlar kesimida o'tkaziladigan innovatsion yarmarkalarni yagona raqamli makonda to'plash, ishtirokchilar o'rtasida tezkor axborot almashuvini ta'minlash va hamkorlik imkoniyatlarini kengaytirish uchun yaratilgan.
+                inno-fair.uz platformasi hududlar kesimida o'tkaziladigan innovatsion yarmarkalarni yagona raqamli makonda to'plash, ishtirokchilar o'rtasida tezkor axborot almashuvini ta'minlash va hamkorlik imkoniyatlarini kengaytirish uchun yaratilgan.
               </p>
               <p>
                 Biz foydalanuchilarga tadbirlar taqvimi, innovatsion loyihalar ma'lumotnomalari, investitsion takliflar va hududiy muammolar bo'yicha yechimlar bazasini taqdim etamiz. Har bir loyiha bo'yicha media kontent, tajribalar va ekspert fikrlari jamlangan.
@@ -126,18 +126,12 @@ export default function About() {
             </div>
           </div>
 
-          <div className="mt-16 text-center">
-            <Card className="bg-primary/5 border-primary/20">
-              <CardContent className="pt-6">
-                <h3 className="text-2xl font-bold mb-4">SAYD.X</h3>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  InnofairUz platformasi SAYD.X texnologiya kompaniyasi tomonidan ishlab chiqilgan va qo'llab-quvvatlanadi. Kompaniya innovatsion yechimlar yaratish va raqamli transformatsiyani amalga oshirishda yetakchi tajribaga ega.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
     </div>
   );
 }
+
+
+
+

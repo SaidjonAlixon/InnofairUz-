@@ -1,4 +1,4 @@
-# InnofairUz - Mintaqaviy Innovatsion Yarmarka Platformasi: Design Guidelines
+# inno-fair.uz - Mintaqaviy Innovatsion Yarmarka Platformasi: Design Guidelines
 
 ## Design Approach
 

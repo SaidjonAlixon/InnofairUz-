@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+﻿import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Wrench, ClipboardCheck } from "lucide-react";
 
@@ -22,7 +22,7 @@ const regionalChallenges = [
 
 const actionPlan = [
   "Muammoni tavsiflash va maqsadli indikatorlarni aniqlash",
-  "InnofairUz ekspertlari bilan birgalikda texnik yechimni tanlash",
+  "inno-fair.uz ekspertlari bilan birgalikda texnik yechimni tanlash",
   "Pilot loyiha uchun hudud va sheriklarni belgilash",
   "Monitoring va natijalar bo'yicha hisobot tayyorlash",
 ];
@@ -89,13 +89,16 @@ export default function SolutionsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>• Hududiy muammo tafsilotlarini va mavjud resurslarni ko'rsating.</p>
-            <p>• Yechimning texnik tavsifi va kutilayotgan natijalarni yozib qoldiring.</p>
-            <p>• Hamkorlik uchun tegishli tashkilotlar va mas'ullarni qo'shing.</p>
+            <p>РІР‚Сћ Hududiy muammo tafsilotlarini va mavjud resurslarni ko'rsating.</p>
+            <p>РІР‚Сћ Yechimning texnik tavsifi va kutilayotgan natijalarni yozib qoldiring.</p>
+            <p>РІР‚Сћ Hamkorlik uchun tegishli tashkilotlar va mas'ullarni qo'shing.</p>
           </CardContent>
         </Card>
       </div>
     </div>
   );
 }
+
+
+
 

@@ -1,4 +1,4 @@
-import { Link, useLocation } from "wouter";
+﻿import { Link, useLocation } from "wouter";
 import { Search, Menu, X, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,7 +43,7 @@ export default function Header() {
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 via-blue-500 to-blue-600 text-white shadow-sm">
                 <Lightbulb className="h-5 w-5" />
               </div>
-              <span className="text-xl font-bold">InnofairUz</span>
+              <span className="text-xl font-bold">inno-fair.uz</span>
             </div>
           </Link>
 
@@ -193,3 +193,6 @@ export default function Header() {
     </header>
   );
 }
+
+
+

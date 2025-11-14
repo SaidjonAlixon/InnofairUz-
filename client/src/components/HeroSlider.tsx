@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +10,7 @@ const slides = [
   {
     id: 1,
     image: heroImage1,
-    category: "InnofairUz 2025",
+    category: "inno-fair.uz 2025",
     title: "Hududiy innovatsion yarmarka onlayn formatda",
     description: "Tadbirlar taqvimi, ishtirokchilar va pitch sessiyalar yagona platformada to'plandi.",
   },
@@ -117,3 +117,6 @@ export default function HeroSlider() {
     </div>
   );
 }
+
+
+

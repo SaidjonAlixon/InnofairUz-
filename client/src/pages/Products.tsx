@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+﻿import { useQuery } from "@tanstack/react-query";
 import type { Category, Innovation, User } from "@shared/schema";
 import InnovationCard from "@/components/InnovationCard";
 import { Button } from "@/components/ui/button";
@@ -107,7 +107,7 @@ export default function ProductsPage() {
         <section className="rounded-xl border bg-card p-8 text-center space-y-4">
           <h2 className="text-3xl font-semibold">Mahsulotingizni ro'yxatga qo'shing</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Innovatsion mahsulotingizni InnofairUz katalogiga joylab, investorlar va sanoat shartnomalarini jalb qiling. Ekspertlar jamoasi mos keluvchi bozor segmentlarini tanlashga yordam beradi.
+            Innovatsion mahsulotingizni inno-fair.uz katalogiga joylab, investorlar va sanoat shartnomalarini jalb qiling. Ekspertlar jamoasi mos keluvchi bozor segmentlarini tanlashga yordam beradi.
           </p>
           <Button size="lg" data-testid="button-submit-product">
             Mahsulotni yuborish
@@ -117,4 +117,7 @@ export default function ProductsPage() {
     </div>
   );
 }
+
+
+
 

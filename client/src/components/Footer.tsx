@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+﻿import { Link } from "wouter";
 import { Facebook, Linkedin, Twitter, Send, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ export default function Footer() {
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 via-blue-500 to-blue-600 text-white shadow-sm">
                 <Lightbulb className="h-5 w-5" />
               </div>
-              <span className="text-xl font-bold">InnofairUz</span>
+              <span className="text-xl font-bold">inno-fair.uz</span>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
               Mintaqaviy innovatsion yarmarka platformasi: tadbirlar, loyihalar va hamkorlik imkoniyatlari yagona ekotizimda.
@@ -116,9 +116,13 @@ export default function Footer() {
         </div>
 
         <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; 2025 InnofairUz. Barcha huquqlar himoyalangan. Ishlab chiquvchi: SAYD.X</p>
+          <p>&copy; 2025 inno-fair.uz. Barcha huquqlar himoyalangan.</p>
         </div>
       </div>
     </footer>
   );
 }
+
+
+
+

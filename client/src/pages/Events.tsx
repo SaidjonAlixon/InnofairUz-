@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Category, News } from "@shared/schema";
 import NewsCard from "@/components/NewsCard";
@@ -25,7 +25,7 @@ const staticSessions = [
   {
     time: "09:30",
     title: "Hududiy innovatsion ko'rgazma ochilishi",
-    description: "Viloyat hokimligi va InnofairUz hamkorligidagi rasmiy start, hamkorlar taqdimoti.",
+    description: "Viloyat hokimligi va inno-fair.uz hamkorligidagi rasmiy start, hamkorlar taqdimoti.",
   },
   {
     time: "11:00",
@@ -84,10 +84,10 @@ export default function EventsPage() {
     });
 
     events.push({
-      id: "innofairuz-bootcamp",
+      id: "inno-fair.uz-bootcamp",
       image: startupImage,
       category: "Startap",
-      title: "InnofairUz bootcamp: mentorlik sessiyalari uchun ro'yxat boshlandi",
+      title: "inno-fair.uz bootcamp: mentorlik sessiyalari uchun ro'yxat boshlandi",
       date: new Date("2025-04-02").toLocaleDateString("uz-UZ", {
         day: "numeric",
         month: "long",
@@ -114,7 +114,7 @@ export default function EventsPage() {
       <div className="container mx-auto px-4 py-8 space-y-10">
         <div className="space-y-4 text-center max-w-3xl mx-auto">
           <Badge variant="outline" className="mx-auto w-fit px-4 py-1 text-sm">
-            InnofairUz Tadbirlar Markazi
+            inno-fair.uz Tadbirlar Markazi
           </Badge>
           <h1 className="text-4xl font-bold">Innovatsion yarmarka tadbirlari taqvimi</h1>
           <p className="text-lg text-muted-foreground">
@@ -159,4 +159,7 @@ export default function EventsPage() {
     </div>
   );
 }
+
+
+
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -88,7 +88,7 @@ export default function InvestorsPage() {
       <div className="container mx-auto px-4 py-8 space-y-10">
         <div className="space-y-4 text-center max-w-3xl mx-auto">
           <Badge variant="outline" className="mx-auto w-fit px-4 py-1 text-sm">
-            InnofairUz Investorlar maydoni
+            inno-fair.uz Investorlar maydoni
           </Badge>
           <h1 className="text-4xl font-bold">Investorlar va sheriklar uchun takliflar</h1>
           <p className="text-lg text-muted-foreground">
@@ -125,13 +125,13 @@ export default function InvestorsPage() {
             </CardHeader>
             <CardContent className="space-y-4 text-sm text-muted-foreground">
               <p>
-                • Innovatsion g'oyalar uchun: 50 000 - 100 000 USD gacha bo'lgan kichik grant va qisqa muddatli akseleratsiya dasturlari.
+                РІР‚Сћ Innovatsion g'oyalar uchun: 50 000 - 100 000 USD gacha bo'lgan kichik grant va qisqa muddatli akseleratsiya dasturlari.
               </p>
               <p>
-                • Mahsulot prototiplari uchun: 150 000 - 300 000 USD oralig'ida qo'shma investitsiya va laboratoriya infratuzilmasi.
+                РІР‚Сћ Mahsulot prototiplari uchun: 150 000 - 300 000 USD oralig'ida qo'shma investitsiya va laboratoriya infratuzilmasi.
               </p>
               <p>
-                • Sanoat darajasidagi yechimlar uchun: 500 000 USD dan boshlab venture debt va strategik sheriklik bitimlari.
+                РІР‚Сћ Sanoat darajasidagi yechimlar uchun: 500 000 USD dan boshlab venture debt va strategik sheriklik bitimlari.
               </p>
             </CardContent>
           </Card>
@@ -144,9 +144,9 @@ export default function InvestorsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <p>• Mahalliy ishlab chiqaruvchilar va texnoparklar bilan qo'shma ishlab chiqarish.</p>
-              <p>• Universitetlar va ilmiy markazlar bilan ilmiy-tadqiqot hamkorligi.</p>
-              <p>• Bank va moliya institutlari bilan lizing va kredit liniyalari bo'yicha kelishuvlar.</p>
+              <p>РІР‚Сћ Mahalliy ishlab chiqaruvchilar va texnoparklar bilan qo'shma ishlab chiqarish.</p>
+              <p>РІР‚Сћ Universitetlar va ilmiy markazlar bilan ilmiy-tadqiqot hamkorligi.</p>
+              <p>РІР‚Сћ Bank va moliya institutlari bilan lizing va kredit liniyalari bo'yicha kelishuvlar.</p>
             </CardContent>
           </Card>
         </div>
@@ -249,4 +249,7 @@ export default function InvestorsPage() {
     </div>
   );
 }
+
+
+
 

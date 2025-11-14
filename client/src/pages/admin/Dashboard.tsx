@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+﻿import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -52,7 +52,7 @@ type PublishableItem = {
 };
 
 function formatDate(value: Date | string | undefined) {
-  if (!value) return "—";
+  if (!value) return "РІР‚вЂќ";
   return new Date(value).toLocaleDateString("uz-UZ", {
     day: "numeric",
     month: "short",
@@ -176,7 +176,7 @@ export default function AdminDashboard() {
         title: "Yangiliklar",
         value: stats?.totalNews ?? 0,
         icon: Newspaper,
-        helper: "InnofairUz media markazi",
+        helper: "inno-fair.uz media markazi",
       },
       {
         title: "Innovatsiyalar",
@@ -393,14 +393,14 @@ export default function AdminDashboard() {
               <Lightbulb className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">InnofairUz</p>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">inno-fair.uz</p>
               <h1 className="text-lg font-semibold">Administrator paneli</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-sm font-semibold">{user.fullName}</p>
-              <p className="text-xs text-muted-foreground">{user.username} • {user.role}</p>
+              <p className="text-xs text-muted-foreground">{user.username} РІР‚Сћ {user.role}</p>
             </div>
             <Avatar>
               <AvatarFallback>{user.fullName?.[0] ?? "A"}</AvatarFallback>
@@ -456,7 +456,7 @@ export default function AdminDashboard() {
                         <p className="text-sm text-muted-foreground line-clamp-2">{article.excerpt}</p>
                         <div className="text-xs text-muted-foreground flex items-center gap-2">
                           <span>{formatDate(article.createdAt)}</span>
-                          <span>•</span>
+                          <span>РІР‚Сћ</span>
                           <span>ID: {article.id.slice(0, 8)}</span>
                         </div>
                       </div>
@@ -480,7 +480,7 @@ export default function AdminDashboard() {
                         </div>
                         <div className="text-xs text-muted-foreground flex items-center gap-2">
                           <span>{formatDate(item.createdAt)}</span>
-                          <span>•</span>
+                          <span>РІР‚Сћ</span>
                           <span>ID: {item.id.slice(0, 8)}</span>
                         </div>
                       </div>
@@ -507,7 +507,7 @@ export default function AdminDashboard() {
                         <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
                         <div className="text-xs text-muted-foreground flex items-center gap-2">
                           <span>{formatDate(item.createdAt)}</span>
-                          <span>•</span>
+                          <span>РІР‚Сћ</span>
                           <span>ID: {item.id.slice(0, 8)}</span>
                         </div>
                       </div>
@@ -999,7 +999,7 @@ export default function AdminDashboard() {
                         <p className="text-sm text-muted-foreground line-clamp-2">{article.excerpt}</p>
                         <div className="text-xs text-muted-foreground flex items-center gap-2">
                           <span>{formatDate(article.createdAt)}</span>
-                          <span>•</span>
+                          <span>РІР‚Сћ</span>
                           <span>ID: {article.id.slice(0, 8)}</span>
                         </div>
                         <div className="mt-2 flex items-center gap-2">
@@ -1033,7 +1033,7 @@ export default function AdminDashboard() {
                         </div>
                         <div className="text-xs text-muted-foreground flex items-center gap-2">
                           <span>{formatDate(item.createdAt)}</span>
-                          <span>•</span>
+                          <span>РІР‚Сћ</span>
                           <span>ID: {item.id.slice(0, 8)}</span>
                         </div>
                         <div className="mt-2 flex items-center gap-2">
@@ -1070,7 +1070,7 @@ export default function AdminDashboard() {
                         <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
                         <div className="text-xs text-muted-foreground flex items-center gap-2">
                           <span>{formatDate(item.createdAt)}</span>
-                          <span>•</span>
+                          <span>РІР‚Сћ</span>
                           <span>ID: {item.id.slice(0, 8)}</span>
                         </div>
                         <div className="mt-2 flex items-center gap-2">
@@ -1147,3 +1147,6 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+
+

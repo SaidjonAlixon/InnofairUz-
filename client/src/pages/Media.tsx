@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+﻿import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PlayCircle, Video, Mic } from "lucide-react";
 
@@ -25,7 +25,7 @@ const mediaLibrary = [
 
 const upcomingStreams = [
   {
-    title: "InnofairUz 2025: Ochiq innovatsiyalar sessiyasi",
+    title: "inno-fair.uz 2025: Ochiq innovatsiyalar sessiyasi",
     date: "15-mart, 2025",
     description: "Yarmarka doirasidagi asosiy sahna, investorlarga taqdimotlar va imzo marosimlari to'g'ridan-to'g'ri efirda.",
   },
@@ -58,7 +58,7 @@ export default function MediaPage() {
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <PlayCircle className="h-4 w-4" />
                   <span>{item.duration}</span>
-                  <span>•</span>
+                  <span>РІР‚Сћ</span>
                   <span>{item.type}</span>
                 </div>
               </CardHeader>
@@ -96,9 +96,9 @@ export default function MediaPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <p>• Yarmarka sessiyalariga akkreditatsiya olish uchun press@innofairuz.uz manziliga yozing.</p>
-              <p>• Video va audio materiallardan foydalanishda manba sifatida InnofairUz ko'rsatilishi shart.</p>
-              <p>• Ekspert intervyular va master-klasslar uchun oldindan ariza topshirish talab etiladi.</p>
+              <p>РІР‚Сћ Yarmarka sessiyalariga akkreditatsiya olish uchun press@inno-fair.uz.uz manziliga yozing.</p>
+              <p>РІР‚Сћ Video va audio materiallardan foydalanishda manba sifatida inno-fair.uz ko'rsatilishi shart.</p>
+              <p>РІР‚Сћ Ekspert intervyular va master-klasslar uchun oldindan ariza topshirish talab etiladi.</p>
             </CardContent>
           </Card>
         </div>
@@ -106,4 +106,7 @@ export default function MediaPage() {
     </div>
   );
 }
+
+
+
 

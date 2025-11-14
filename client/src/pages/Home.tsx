@@ -1,4 +1,4 @@
-import HeroSlider from "@/components/HeroSlider";
+﻿import HeroSlider from "@/components/HeroSlider";
 import ArticleCard from "@/components/ArticleCard";
 import NewsCard from "@/components/NewsCard";
 import InnovationCard from "@/components/InnovationCard";
@@ -111,10 +111,10 @@ export default function Home() {
       }),
     })),
     {
-      id: "innofairuz-bootcamp",
+      id: "inno-fair.uz-bootcamp",
       image: startupImage,
       category: "Startap",
-      title: "InnofairUz bootcamp: mentorlik sessiyalari uchun ro'yxat boshlandi",
+      title: "inno-fair.uz bootcamp: mentorlik sessiyalari uchun ro'yxat boshlandi",
       date: new Date("2025-04-02").toLocaleDateString('uz-UZ', { 
         day: 'numeric', 
         month: 'long', 
@@ -206,9 +206,9 @@ export default function Home() {
         </section>
 
         <section className="bg-gradient-to-r from-primary/10 via-primary/5 to-background rounded-lg p-8 lg:p-12 text-center">
-          <h2 className="text-3xl font-bold mb-4">O'z g'oyangizni InnofairUz sahnasida taqdim eting!</h2>
+          <h2 className="text-3xl font-bold mb-4">O'z g'oyangizni inno-fair.uz sahnasida taqdim eting!</h2>
           <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
-            G'oya pasportini yuklang, ekspertlar bahosini oling va investorlar bilan uchrashuvni rejalashtiring. InnofairUz sizni hududiy yarmarkalar sahnasiga olib chiqadi.
+            G'oya pasportini yuklang, ekspertlar bahosini oling va investorlar bilan uchrashuvni rejalashtiring. inno-fair.uz sizni hududiy yarmarkalar sahnasiga olib chiqadi.
           </p>
           <Button size="lg" data-testid="button-submit-innovation">
             Loyiha yuborish
@@ -223,3 +223,6 @@ export default function Home() {
     </div>
   );
 }
+
+
+

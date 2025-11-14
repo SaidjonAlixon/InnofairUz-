@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,7 +40,7 @@ export default function AdminLogin() {
           </div>
           <CardTitle className="text-2xl">Admin panelga kirish</CardTitle>
           <CardDescription>
-            Super admin hisobiga kirib, InnofairUz platformasidagi kontent va foydalanuvchilarni boshqaring.
+            Super admin hisobiga kirib, inno-fair.uz platformasidagi kontent va foydalanuvchilarni boshqaring.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -87,3 +87,6 @@ export default function AdminLogin() {
     </div>
   );
 }
+
+
+
