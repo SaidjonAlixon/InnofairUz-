@@ -32,8 +32,12 @@ export function setupRoutes(app: Express) {
   // ===== Authentication Routes =====
   app.post("/api/auth/login", async (req, res) => {
     try {
-      const { username, password } = req.body;
-      const user = await storage.getUserByUsername(username);
+      const { email, password } = req.body;
+      if (typeof email !== "string" || typeof password !== "string" || !email || !password) {
+        return res.status(400).json({ error: "Email va parol talab qilinadi" });
+      }
+      const normalizedEmail = email.toLowerCase();
+      const user = await storage.getUserByEmail(normalizedEmail);
 
       if (!user || user.password !== password) {
         return res.status(401).json({ error: "Invalid credentials" });
@@ -47,16 +51,23 @@ export function setupRoutes(app: Express) {
     }
   });
 
+  const SELF_REGISTER_ROLES = ["investor", "mijoz"] as const;
+
   app.post("/api/auth/register", async (req, res) => {
     try {
       const userData = insertUserSchema.parse(req.body);
-      const existingUser = await storage.getUserByUsername(userData.username);
+      const normalizedEmail = userData.email.toLowerCase();
+      const existingUser = await storage.getUserByEmail(normalizedEmail);
 
       if (existingUser) {
-        return res.status(400).json({ error: "Username already exists" });
+        return res.status(400).json({ error: "Ushbu Gmail manzili allaqachon mavjud" });
       }
 
-      const user = await storage.createUser(userData);
+      type SelfRole = (typeof SELF_REGISTER_ROLES)[number];
+      const requestedRole = userData.role?.toLowerCase() as SelfRole | undefined;
+      const role: SelfRole = requestedRole && SELF_REGISTER_ROLES.includes(requestedRole) ? requestedRole : "mijoz";
+
+      const user = await storage.createUser({ ...userData, email: normalizedEmail, role });
       const { password: _, ...userWithoutPassword } = user;
       res.status(201).json({ user: userWithoutPassword });
     } catch (error) {

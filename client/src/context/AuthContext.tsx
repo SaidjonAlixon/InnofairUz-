@@ -5,8 +5,8 @@ type AuthUser = Omit<User, "password"> | null;
 
 type AuthContextValue = {
   user: AuthUser;
-  login: (credentials: { username: string; password: string }) => Promise<void>;
-  register: (payload: { username: string; password: string; fullName: string; avatar?: string }) => Promise<void>;
+  login: (credentials: { email: string; password: string }) => Promise<void>;
+  register: (payload: { email: string; password: string; fullName: string; role: "investor" | "mijoz"; avatar?: string }) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
   error: string | null;
@@ -46,14 +46,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
   }, [user]);
 
-  const login = async ({ username, password }: { username: string; password: string }) => {
+const login = async ({ email, password }: { email: string; password: string }) => {
     setIsLoading(true);
     setError(null);
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
@@ -76,14 +76,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async ({
-    username,
+    email,
     password,
     fullName,
     avatar,
+    role,
   }: {
-    username: string;
+    email: string;
     password: string;
     fullName: string;
+    role: "investor" | "mijoz";
     avatar?: string;
   }) => {
     setIsLoading(true);
@@ -92,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, fullName, avatar }),
+        body: JSON.stringify({ email, password, fullName, avatar, role }),
       });
 
       if (!response.ok) {

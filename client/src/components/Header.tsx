@@ -118,7 +118,7 @@ export default function Header() {
               <div className="hidden lg:flex items-center gap-3 pl-3">
                 <div className="text-right">
                   <p className="text-sm font-semibold leading-tight">{user.fullName}</p>
-                  <p className="text-xs text-muted-foreground lowercase">@{user.username}</p>
+                  <p className="text-xs text-muted-foreground lowercase">{user.email}</p>
                 </div>
                 <Avatar className="h-9 w-9">
                   {user.avatar ? <AvatarImage src={user.avatar} /> : null}
@@ -179,7 +179,7 @@ export default function Header() {
                   </Avatar>
                   <div>
                     <p className="text-sm font-semibold leading-tight">{user.fullName}</p>
-                    <p className="text-xs text-muted-foreground lowercase">@{user.username}</p>
+                    <p className="text-xs text-muted-foreground lowercase">{user.email}</p>
                   </div>
                 </div>
                 <Button variant="outline" onClick={() => logout()} data-testid="button-user-logout-mobile">

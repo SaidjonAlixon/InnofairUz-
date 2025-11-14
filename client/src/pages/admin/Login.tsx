@@ -11,7 +11,7 @@ import { ShieldAlert } from "lucide-react";
 export default function AdminLogin() {
   const { login, user, isLoading, error } = useAuth();
   const [, navigate] = useLocation();
-  const [credentials, setCredentials] = useState({ username: "", password: "" });
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [submitted, setSubmitted] = useState(false);
 
   if (user?.role === "super_admin") {
@@ -22,8 +22,12 @@ export default function AdminLogin() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmitted(true);
+    const normalizedEmail = credentials.email.trim().toLowerCase();
+    if (!normalizedEmail.endsWith("@gmail.com")) {
+      return alert("Faqat @gmail.com manzili orqali kirish mumkin.");
+    }
     try {
-      await login(credentials);
+      await login({ ...credentials, email: normalizedEmail });
       navigate("/admin");
     } catch (err) {
       // error already handled via context state
@@ -52,16 +56,18 @@ export default function AdminLogin() {
           )}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2 text-left">
-              <Label htmlFor="username">Foydalanuvchi nomi</Label>
+              <Label htmlFor="email">Gmail manzili</Label>
               <Input
-                id="username"
-                value={credentials.username}
+                id="email"
+                type="email"
+                value={credentials.email}
                 onChange={(event) =>
-                  setCredentials((prev) => ({ ...prev, username: event.target.value }))
+                  setCredentials((prev) => ({ ...prev, email: event.target.value }))
                 }
-                placeholder="Masalan: admin"
+                placeholder="Masalan: admin@gmail.com"
                 required
-                data-testid="input-admin-username"
+                title="Faqat @gmail.com bilan tugaydigan manzilni kiriting"
+                data-testid="input-admin-email"
               />
             </div>
             <div className="space-y-2 text-left">

@@ -13,7 +13,7 @@ import { randomUUID } from "crypto";
 export interface IStorage {
   // Users
   getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   getAllUsers(): Promise<User[]>;
   updateUser(id: string, user: Partial<InsertUser>): Promise<User | undefined>;
@@ -130,7 +130,7 @@ export class MemStorage implements IStorage {
   private async initializeAdmin() {
     // Create default admin user (password: admin123)
     await this.createUser({
-      username: "admin",
+      email: "admin@gmail.com",
       password: "admin123", // In production, this should be hashed
       fullName: "Super Admin",
       role: "super_admin",
@@ -138,7 +138,7 @@ export class MemStorage implements IStorage {
 
     // Create demo editor
     await this.createUser({
-      username: "editor",
+      email: "editor@gmail.com",
       password: "editor123",
       fullName: "Aziz Normatov",
       role: "editor_admin",
@@ -146,14 +146,14 @@ export class MemStorage implements IStorage {
 
     // Create demo users
     await this.createUser({
-      username: "malika",
+      email: "malika@gmail.com",
       password: "user123",
       fullName: "Malika Yusupova",
       role: "user",
     });
 
     await this.createUser({
-      username: "javohir",
+      email: "javohir@gmail.com",
       password: "user123",
       fullName: "Javohir Karimov",
       role: "user",
@@ -304,8 +304,8 @@ export class MemStorage implements IStorage {
     return this.users.get(id);
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find((user) => user.username === username);
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find((user) => user.email === email);
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
@@ -314,6 +314,7 @@ export class MemStorage implements IStorage {
       ...insertUser,
       role: insertUser.role || "user",
       avatar: insertUser.avatar ?? null,
+      email: insertUser.email.toLowerCase(),
       id,
       createdAt: new Date(),
     };

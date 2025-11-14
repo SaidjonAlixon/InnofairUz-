@@ -11,9 +11,10 @@ export default function UserRegister() {
   const { register, isLoading, error, user } = useAuth();
   const [, navigate] = useLocation();
   const [form, setForm] = useState({
-    username: "",
+    email: "",
     password: "",
     fullName: "",
+    role: "" as "" | "investor" | "mijoz",
   });
 
   if (user) {
@@ -23,8 +24,15 @@ export default function UserRegister() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const normalizedEmail = form.email.trim().toLowerCase();
+    if (!normalizedEmail.endsWith("@gmail.com")) {
+      return alert("Faqat @gmail.com manzillari orqali ro'yxatdan o'tish mumkin.");
+    }
+    if (!form.role) {
+      return alert("Rolni tanlang: Investor yoki Mijoz.");
+    }
     try {
-      await register({ ...form });
+      await register({ ...form, email: normalizedEmail, role: form.role });
       navigate("/");
     } catch (err) {
       // context handles error
@@ -57,13 +65,36 @@ export default function UserRegister() {
               />
             </div>
             <div>
-              <Label htmlFor="register-username">Foydalanuvchi nomi</Label>
+              <Label htmlFor="register-email">Gmail manzili</Label>
               <Input
-                id="register-username"
-                value={form.username}
-                onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
+                id="register-email"
+                type="email"
+                value={form.email}
+                placeholder="misol: foydalanuvchi@gmail.com"
+                onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value.toLowerCase() }))}
                 required
+                title="Faqat @gmail.com bilan tugaydigan manzilni kiriting"
               />
+              <p className="text-xs text-muted-foreground mt-1">Faqat Gmail ( @gmail.com ) orqali ro'yxatdan o'tish mumkin.</p>
+            </div>
+            <div>
+              <Label htmlFor="register-role">Rolingiz</Label>
+              <select
+                id="register-role"
+                value={form.role}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, role: event.target.value as "investor" | "mijoz" }))
+                }
+                required
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="" disabled>
+                  Rolni tanlang
+                </option>
+                <option value="investor">Investor</option>
+                <option value="mijoz">Mijoz</option>
+              </select>
+              <p className="text-xs text-muted-foreground mt-1">Investor yoki mijoz rolini tanlang.</p>
             </div>
             <div>
               <Label htmlFor="register-password">Parol</Label>

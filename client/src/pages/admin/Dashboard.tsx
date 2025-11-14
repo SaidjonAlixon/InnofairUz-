@@ -400,7 +400,7 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-sm font-semibold">{user.fullName}</p>
-              <p className="text-xs text-muted-foreground">{user.username} РІР‚Сћ {user.role}</p>
+              <p className="text-xs text-muted-foreground">{user.email} • {user.role}</p>
             </div>
             <Avatar>
               <AvatarFallback>{user.fullName?.[0] ?? "A"}</AvatarFallback>
@@ -536,7 +536,7 @@ export default function AdminDashboard() {
                         {users.slice(0, 10).map((u) => (
                           <tr key={u.id} className="border-t">
                             <td className="py-2 pr-4 font-medium">{u.fullName}</td>
-                            <td className="py-2 pr-4">{u.username}</td>
+                            <td className="py-2 pr-4">{u.email}</td>
                             <td className="py-2 pr-4">
                               <Badge variant={u.role === "super_admin" ? "destructive" : "outline"}>{u.role}</Badge>
                             </td>
@@ -935,7 +935,7 @@ export default function AdminDashboard() {
                           <SelectItem value="none">Tanlanmagan</SelectItem>
                           {authorOptions.map((author) => (
                             <SelectItem key={author.id} value={author.id}>
-                              {author.fullName} ({author.username})
+                              {author.fullName} ({author.email})
                             </SelectItem>
                           ))}
                         </SelectContent>

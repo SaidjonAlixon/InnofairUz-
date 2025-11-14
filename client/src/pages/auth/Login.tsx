@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 export default function UserLogin() {
   const { login, isLoading, error, user } = useAuth();
   const [, navigate] = useLocation();
-  const [credentials, setCredentials] = useState({ username: "", password: "" });
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
 
   if (user) {
     navigate("/");
@@ -19,8 +19,12 @@ export default function UserLogin() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const normalizedEmail = credentials.email.trim().toLowerCase();
+    if (!normalizedEmail.endsWith("@gmail.com")) {
+      return alert("Faqat @gmail.com manzili orqali kirish mumkin.");
+    }
     try {
-      await login(credentials);
+      await login({ ...credentials, email: normalizedEmail });
       navigate("/");
     } catch (err) {
       // error handled via context
@@ -44,12 +48,15 @@ export default function UserLogin() {
           )}
           <form onSubmit={handleSubmit} className="space-y-4 text-left">
             <div>
-              <Label htmlFor="login-username">Foydalanuvchi nomi</Label>
+              <Label htmlFor="login-email">Gmail manzili</Label>
               <Input
-                id="login-username"
-                value={credentials.username}
-                onChange={(event) => setCredentials((prev) => ({ ...prev, username: event.target.value }))}
+                id="login-email"
+                type="email"
+                value={credentials.email}
+                placeholder="gmail manzilingiz"
+                onChange={(event) => setCredentials((prev) => ({ ...prev, email: event.target.value }))}
                 required
+                title="Faqat @gmail.com bilan tugaydigan manzilni kiriting"
               />
             </div>
             <div>
