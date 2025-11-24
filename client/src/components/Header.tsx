@@ -15,6 +15,7 @@ const navItems = [
   { id: "media", name: "Media markaz", path: "/media" },
   { id: "products", name: "Tijorat mahsulotlari", path: "/mahsulotlar" },
   { id: "solutions", name: "Hududiy yechimlar", path: "/yechimlar" },
+  { id: "ideas-club", name: "G'oyalar klubi", path: "/goyalar-klubi" },
   { id: "collab", name: "Hamkorlik va fikrlar", path: "/hamkorlik" },
 ];
 
@@ -57,6 +58,10 @@ export default function Header() {
                   {item.id === "media" ? (
                     <>
                       Media<br />markaz
+                    </>
+                  ) : item.id === "ideas-club" ? (
+                    <>
+                      G'oyalar<br />klubi
                     </>
                   ) : (
                     item.name
@@ -116,14 +121,16 @@ export default function Header() {
 
             {user && (
               <div className="hidden lg:flex items-center gap-3 pl-3">
-                <div className="text-right">
-                  <p className="text-sm font-semibold leading-tight">{user.fullName}</p>
-                  <p className="text-xs text-muted-foreground lowercase">{user.email}</p>
-                </div>
-                <Avatar className="h-9 w-9">
-                  {user.avatar ? <AvatarImage src={user.avatar} /> : null}
-                  <AvatarFallback>{user.fullName?.[0] ?? "U"}</AvatarFallback>
-                </Avatar>
+                <Link href="/profile" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+                  <div className="text-right">
+                    <p className="text-sm font-semibold leading-tight">{user.fullName}</p>
+                    <p className="text-xs text-muted-foreground lowercase">{user.email}</p>
+                  </div>
+                  <Avatar className="h-9 w-9">
+                    {user.avatar ? <AvatarImage src={user.avatar} /> : null}
+                    <AvatarFallback>{user.fullName?.[0] ?? "U"}</AvatarFallback>
+                  </Avatar>
+                </Link>
                 <Button variant="ghost" size="sm" onClick={logout} data-testid="button-user-logout">
                   Chiqish
                 </Button>
@@ -155,6 +162,10 @@ export default function Header() {
                     <>
                       Media<br />markaz
                     </>
+                  ) : item.id === "ideas-club" ? (
+                    <>
+                      G'oyalar<br />klubi
+                    </>
                   ) : (
                     item.name
                   )}
@@ -172,7 +183,7 @@ export default function Header() {
               </>
             ) : (
               <div className="flex flex-col gap-2 w-full border-t pt-4 mt-2">
-                <div className="flex items-center gap-3">
+                <Link href="/profile" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
                   <Avatar className="h-8 w-8">
                     {user.avatar ? <AvatarImage src={user.avatar} /> : null}
                     <AvatarFallback>{user.fullName?.[0] ?? "U"}</AvatarFallback>
@@ -181,7 +192,7 @@ export default function Header() {
                     <p className="text-sm font-semibold leading-tight">{user.fullName}</p>
                     <p className="text-xs text-muted-foreground lowercase">{user.email}</p>
                   </div>
-                </div>
+                </Link>
                 <Button variant="outline" onClick={() => logout()} data-testid="button-user-logout-mobile">
                   Chiqish
                 </Button>

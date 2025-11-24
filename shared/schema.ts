@@ -3,7 +3,7 @@ import { pgTable, text, varchar, timestamp, integer, boolean, jsonb } from "driz
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const userRoles = ["super_admin", "editor_admin", "user", "investor", "mijoz"] as const;
+export const userRoles = ["super_admin", "editor_admin", "assistant", "user", "investor", "mijoz"] as const;
 
 // Users table
 export const users = pgTable("users", {
@@ -12,7 +12,9 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   fullName: text("full_name").notNull(),
   avatar: text("avatar"),
-  role: text("role").notNull().default("user"), // super_admin, editor_admin, user
+  role: text("role").notNull().default("user"), // super_admin, editor_admin, assistant, user
+  emailVerified: boolean("email_verified").default(false).notNull(),
+  metadata: jsonb("metadata").$type<Record<string, unknown> | null>().default(null),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -27,6 +29,7 @@ export const insertUserSchema = createInsertSchema(users)
       .email("Gmail manzilini kiriting")
       .regex(/@gmail\.com$/i, "Faqat Gmail manzili qabul qilinadi"),
     role: z.enum(userRoles).optional(),
+    metadata: z.record(z.any()).nullish(),
   });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -182,3 +185,14 @@ export const statistics = pgTable("statistics", {
 });
 
 export type Statistics = typeof statistics.$inferSelect;
+
+// Email verification tokens table
+export const emailVerificationTokens = pgTable("email_verification_tokens", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type EmailVerificationToken = typeof emailVerificationTokens.$inferSelect;

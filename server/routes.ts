@@ -3,6 +3,7 @@ import { storage } from "./storage";
 import express from "express";
 import multer from "multer";
 import path from "path";
+import crypto from "crypto";
 import {
   insertArticleSchema,
   insertNewsSchema,
@@ -10,6 +11,8 @@ import {
   insertCommentSchema,
   insertUserSchema,
 } from "@shared/schema";
+import { sendVerificationEmail } from "./email";
+import { log } from "./logger";
 
 // Configure multer for file uploads
 const upload = multer({
@@ -67,11 +70,160 @@ export function setupRoutes(app: Express) {
       const requestedRole = userData.role?.toLowerCase() as SelfRole | undefined;
       const role: SelfRole = requestedRole && SELF_REGISTER_ROLES.includes(requestedRole) ? requestedRole : "mijoz";
 
-      const user = await storage.createUser({ ...userData, email: normalizedEmail, role });
+      const user = await storage.createUser({ ...userData, email: normalizedEmail, role, emailVerified: false });
+      
+      // Generate verification token
+      const verificationToken = crypto.randomBytes(32).toString("hex");
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 24); // Token expires in 24 hours
+
+      // Save verification token
+      await storage.createVerificationToken(user.id, verificationToken, expiresAt);
+
+      // Send verification email
+      try {
+        await sendVerificationEmail({
+          email: normalizedEmail,
+          fullName: user.fullName,
+          verificationToken,
+        });
+        log(`Verification email sent to ${normalizedEmail}`);
+      } catch (emailError: any) {
+        log(`Email yuborishda xatolik: ${emailError?.message || "Unknown error"}`, "error");
+        // Continue even if email fails - user can request resend later
+        // But log the error for debugging
+      }
+
       const { password: _, ...userWithoutPassword } = user;
-      res.status(201).json({ user: userWithoutPassword });
+      res.status(201).json({ 
+        user: userWithoutPassword,
+        message: "Ro'yxatdan o'tdingiz! Gmail manzilingizni tasdiqlash uchun emailingizni tekshiring." 
+      });
     } catch (error) {
       res.status(400).json({ error: "Invalid user data" });
+    }
+  });
+
+  // Update user profile route
+  app.patch("/api/auth/profile", async (req, res) => {
+    try {
+      const { userId, fullName, email, avatar } = req.body;
+      if (!userId) {
+        return res.status(400).json({ error: "User ID talab qilinadi" });
+      }
+
+      const updateData: any = {};
+      if (fullName) updateData.fullName = fullName;
+      if (email) {
+        const normalizedEmail = email.toLowerCase();
+        // Check if email is already taken by another user
+        const existingUser = await storage.getUserByEmail(normalizedEmail);
+        if (existingUser && existingUser.id !== userId) {
+          return res.status(400).json({ error: "Bu Gmail manzili allaqachon mavjud" });
+        }
+        updateData.email = normalizedEmail;
+        updateData.emailVerified = false; // Reset verification when email changes
+      }
+      if (avatar !== undefined) updateData.avatar = avatar;
+
+      // If no updates, return current user
+      if (Object.keys(updateData).length === 0) {
+        const currentUser = await storage.getUser(userId);
+        if (!currentUser) {
+          return res.status(404).json({ error: "Foydalanuvchi topilmadi" });
+        }
+        const { password: _, ...userWithoutPassword } = currentUser;
+        return res.json({ user: userWithoutPassword });
+      }
+
+      const updatedUser = await storage.updateUser(userId, updateData);
+      if (!updatedUser) {
+        return res.status(404).json({ error: "Foydalanuvchi topilmadi" });
+      }
+
+      const { password: _, ...userWithoutPassword } = updatedUser;
+      res.json({ user: userWithoutPassword });
+    } catch (error: any) {
+      const errorMessage = error?.message || "Unknown error";
+      const errorCode = error?.code || "N/A";
+      const errorDetail = error?.detail || error?.hint || "N/A";
+      log(`Profile update error: ${errorMessage}`, "error");
+      log(`Error code: ${errorCode}`, "error");
+      log(`Error detail: ${errorDetail}`, "error");
+      if (error?.stack) {
+        log(`Error stack: ${error.stack.substring(0, 500)}`, "error");
+      }
+      res.status(500).json({ 
+        error: errorMessage,
+        code: errorCode,
+        detail: errorDetail
+      });
+    }
+  });
+
+  // Change password route
+  app.patch("/api/auth/change-password", async (req, res) => {
+    try {
+      const { userId, currentPassword, newPassword } = req.body;
+      if (!userId || !currentPassword || !newPassword) {
+        return res.status(400).json({ error: "Barcha maydonlar talab qilinadi" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "Foydalanuvchi topilmadi" });
+      }
+
+      if (user.password !== currentPassword) {
+        return res.status(401).json({ error: "Joriy parol noto'g'ri" });
+      }
+
+      const updatedUser = await storage.updateUser(userId, { password: newPassword });
+      if (!updatedUser) {
+        return res.status(500).json({ error: "Parolni yangilashda xatolik" });
+      }
+
+      res.json({ success: true, message: "Parol muvaffaqiyatli yangilandi" });
+    } catch (error) {
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
+  // Email verification route
+  app.get("/api/auth/verify-email", async (req, res) => {
+    try {
+      const { token } = req.query;
+      if (!token || typeof token !== "string") {
+        return res.status(400).json({ error: "Tasdiqlash tokeni talab qilinadi" });
+      }
+
+      const verificationToken = await storage.getVerificationToken(token);
+      if (!verificationToken) {
+        return res.status(400).json({ error: "Noto'g'ri yoki muddati o'tgan tasdiqlash tokeni" });
+      }
+
+      // Check if token is expired
+      if (new Date() > verificationToken.expiresAt) {
+        await storage.deleteVerificationToken(token);
+        return res.status(400).json({ error: "Tasdiqlash tokeni muddati o'tgan" });
+      }
+
+      // Verify user email
+      const user = await storage.verifyUserEmail(verificationToken.userId);
+      if (!user) {
+        return res.status(404).json({ error: "Foydalanuvchi topilmadi" });
+      }
+
+      // Delete used token
+      await storage.deleteVerificationToken(token);
+
+      res.json({ 
+        success: true,
+        message: "Gmail manzilingiz muvaffaqiyatli tasdiqlandi!",
+        user 
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Server error" });
     }
   });
 
@@ -324,7 +476,17 @@ export function setupRoutes(app: Express) {
   app.post("/api/comments", async (req, res) => {
     try {
       const commentData = insertCommentSchema.parse(req.body);
-      const comment = await storage.createComment(commentData);
+      // If it's a general discussion (no articleId, newsId, innovationId), auto-approve
+      // Also auto-approve replies to general discussions
+      const isGeneralDiscussion = !commentData.articleId && !commentData.newsId && !commentData.innovationId;
+      let shouldAutoApprove = isGeneralDiscussion;
+      
+      // If it's a reply to a general discussion post, also auto-approve
+      if (commentData.parentId && isGeneralDiscussion) {
+        shouldAutoApprove = true;
+      }
+      
+      const comment = await storage.createComment(commentData, shouldAutoApprove);
       res.status(201).json(comment);
     } catch (error) {
       res.status(400).json({ error: "Invalid comment data" });
@@ -364,13 +526,58 @@ export function setupRoutes(app: Express) {
     }
   });
 
+  // ===== Assistant Management (Admin) =====
+  app.post("/api/admin/assistants", async (req, res) => {
+    try {
+      const { fullName, email, password, services = [], notes } = req.body ?? {};
+
+      if (!fullName || !email || !password) {
+        return res.status(400).json({ error: "To'liq ism, email va parol talab qilinadi" });
+      }
+
+      const normalizedEmail = String(email).toLowerCase();
+      const existingUser = await storage.getUserByEmail(normalizedEmail);
+      if (existingUser) {
+        return res.status(400).json({ error: "Bu email allaqachon mavjud" });
+      }
+
+      const assistantData = insertUserSchema.parse({
+        fullName,
+        email: normalizedEmail,
+        password,
+        role: "assistant",
+        metadata: {
+          services: Array.isArray(services) ? services : [],
+          notes: notes ? String(notes) : "",
+        },
+      });
+
+      const user = await storage.createUser(assistantData);
+      const { password: _, ...userWithoutPassword } = user;
+      res.status(201).json({
+        user: userWithoutPassword,
+        loginLink: "/admin/login",
+      });
+    } catch (error) {
+      res.status(400).json({ error: "Assistent yaratib bo'lmadi" });
+    }
+  });
+
   // ===== Users Routes (Admin) =====
-  app.get("/api/users", async (req, res) => {
+  app.get("/api/users", async (_req, res) => {
     try {
       const users = await storage.getAllUsers();
-      // Remove passwords from response
-      const usersWithoutPasswords = users.map(({ password, ...user }) => user);
-      res.json(usersWithoutPasswords);
+      const sanitized = users.map((user) => {
+        const mutableUser = { ...user } as typeof user & { username?: string };
+        const legacyUsername = mutableUser.username;
+        if (!mutableUser.email && legacyUsername) {
+          mutableUser.email = `${legacyUsername}@gmail.com`;
+        }
+        delete mutableUser.password;
+        delete mutableUser.username;
+        return mutableUser;
+      });
+      res.json(sanitized);
     } catch (error) {
       res.status(500).json({ error: "Server error" });
     }
@@ -422,6 +629,25 @@ export function setupRoutes(app: Express) {
       res.status(201).json(file);
     } catch (error) {
       res.status(500).json({ error: "File upload failed" });
+    }
+  });
+
+  // Avatar upload route
+  app.post("/api/upload/avatar", upload.single("avatar"), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "Rasm yuklanmadi" });
+      }
+
+      // Validate image type
+      if (!req.file.mimetype.startsWith("image/")) {
+        return res.status(400).json({ error: "Faqat rasm fayllari qabul qilinadi" });
+      }
+
+      const avatarUrl = `/uploads/${req.file.filename}`;
+      res.status(201).json({ avatar: avatarUrl });
+    } catch (error) {
+      res.status(500).json({ error: "Rasm yuklashda xatolik" });
     }
   });
 

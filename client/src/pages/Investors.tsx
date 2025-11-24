@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Building2, Handshake, LineChart } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
@@ -163,19 +164,45 @@ export default function InvestorsPage() {
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex ${message.isInvestor ? "justify-end" : "justify-start"}`}
+                  className={`flex gap-2 ${message.isInvestor ? "justify-end" : "justify-start"}`}
                 >
+                  {!message.isInvestor && (
+                    <Avatar className="h-8 w-8 flex-shrink-0">
+                      {message.avatar ? (
+                        <AvatarImage src={message.avatar} alt={message.author} />
+                      ) : null}
+                      <AvatarFallback className="text-xs">
+                        {message.author?.[0]?.toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
                   <div
                     className={`max-w-[75%] rounded-lg px-4 py-3 shadow-sm ${
                       message.isInvestor ? "bg-primary text-primary-foreground" : "bg-background border"
                     }`}
                   >
-                    <div className="text-xs font-semibold mb-1 opacity-80">
-                      {message.author}
+                    <div className="flex items-center gap-2 mb-1">
+                      {message.isInvestor && (
+                        <Avatar className="h-6 w-6 flex-shrink-0">
+                          <AvatarFallback className="text-[10px] bg-primary-foreground/20 text-primary-foreground">
+                            I
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                      <div className="text-xs font-semibold opacity-80">
+                        {message.author}
+                      </div>
                     </div>
                     <p className="text-sm whitespace-pre-wrap break-words">{message.text}</p>
                     <div className="text-[10px] opacity-70 mt-2 text-right">{message.timestamp}</div>
                   </div>
+                  {message.isInvestor && (
+                    <Avatar className="h-8 w-8 flex-shrink-0">
+                      <AvatarFallback className="text-xs bg-primary/20 text-primary">
+                        I
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
                 </div>
               ))}
             </div>

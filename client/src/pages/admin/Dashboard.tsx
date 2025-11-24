@@ -16,9 +16,14 @@ import {
   AlertCircle,
   Upload,
   ClipboardCheck,
+  UserPlus,
+  Copy,
+  LinkIcon,
+  Trash2,
+  MessageSquare,
 } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +31,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectTrigger,
@@ -110,6 +116,23 @@ function createFileInitial() {
   };
 }
 
+const assistantServiceOptions = [
+  { id: "events", label: "Tadbirlar taqvimi", description: "Rasmiy tadbirlarni joylash va o'zgartirish." },
+  { id: "projects", label: "Loyihalar katalogi", description: "Innovatsion loyihalar ro'yxatini yuritish." },
+  { id: "media", label: "Media markaz", description: "Yangiliklar va media materiallarini joylash." },
+  { id: "investors", label: "Investorlar bilan aloqa", description: "Investor va sheriklar bilan yozishmalar." },
+  { id: "support", label: "Fikrlar va murojaatlar", description: "Hamkorlik va fikrlarni tartibga keltirish." },
+];
+
+function generateAssistantPassword(length = 10) {
+  const charset = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  let password = "";
+  for (let i = 0; i < length; i++) {
+    password += charset[Math.floor(Math.random() * charset.length)];
+  }
+  return password;
+}
+
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
   const [, navigate] = useLocation();
@@ -120,8 +143,23 @@ export default function AdminDashboard() {
   const [innovationForm, setInnovationForm] = useState<PublishableItem>(() => createInnovationInitial(user?.role));
   const [fileForm, setFileForm] = useState(createFileInitial);
   const [activeTab, setActiveTab] = useState<string>(getInitialPublishState(user?.role) ? "overview" : "content");
+  const [assistantForm, setAssistantForm] = useState({
+    fullName: "",
+    email: "",
+    password: generateAssistantPassword(),
+    services: [] as string[],
+    notes: "",
+  });
+  const [assistantResult, setAssistantResult] = useState<null | {
+    email: string;
+    password: string;
+    link: string;
+    services: string[];
+  }>(null);
+  const [assistantLoading, setAssistantLoading] = useState(false);
 
-  const canPublish = user?.role === "super_admin";
+  const isSuperAdmin = user?.role === "super_admin";
+  const canPublish = isSuperAdmin;
   const isEditor = user?.role === "editor_admin";
 
   useEffect(() => {
@@ -137,6 +175,103 @@ export default function AdminDashboard() {
     setInnovationForm((prev) => ({ ...prev, published: getInitialPublishState(user?.role) }));
   }, [canPublish, user?.role]);
 
+  const handleAssistantServiceToggle = (serviceId: string) => {
+    setAssistantForm((prev) => {
+      const exists = prev.services.includes(serviceId);
+      return {
+        ...prev,
+        services: exists ? prev.services.filter((id) => id !== serviceId) : [...prev.services, serviceId],
+      };
+    });
+  };
+
+  const regenerateAssistantPassword = () => {
+    setAssistantForm((prev) => ({ ...prev, password: generateAssistantPassword() }));
+  };
+
+  const handleAssistantCopy = (value: string, label: string) => {
+    if (typeof navigator === "undefined" || !navigator.clipboard) return;
+    navigator.clipboard
+      .writeText(value)
+      .then(() => {
+        toast({ title: `${label} nusxalandi` });
+      })
+      .catch(() => {
+        toast({ title: "Nusxalash amalga oshmadi", variant: "destructive" });
+      });
+  };
+
+  const handleAssistantSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setAssistantResult(null);
+
+    const fullName = assistantForm.fullName.trim();
+    const normalizedEmail = assistantForm.email.trim().toLowerCase();
+    const passwordValue = assistantForm.password.trim();
+
+    if (!fullName || !normalizedEmail || !passwordValue) {
+      toast({ title: "Barcha maydonlarni to'ldiring", variant: "destructive" });
+      return;
+    }
+
+    if (!normalizedEmail.endsWith("@gmail.com")) {
+      toast({ title: "Gmail manzilini kiriting", description: "Faqat @gmail.com bilan tugaydigan manzillar qabul qilinadi.", variant: "destructive" });
+      return;
+    }
+
+    setAssistantLoading(true);
+    try {
+      const response = await fetch("/api/admin/assistants", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName,
+          email: normalizedEmail,
+          password: passwordValue,
+          services: assistantForm.services,
+          notes: assistantForm.notes,
+        }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result?.error || "Yordamchi yaratib bo'lmadi");
+      }
+      const absoluteLink =
+        typeof window !== "undefined"
+          ? new URL(result.loginLink ?? "/admin/login", window.location.origin).toString()
+          : result.loginLink ?? "/admin/login";
+
+      const createdPassword = passwordValue;
+      const selectedServices = assistantForm.services;
+
+      setAssistantResult({
+        email: result.user?.email ?? normalizedEmail,
+        password: createdPassword,
+        link: absoluteLink,
+        services: selectedServices,
+      });
+
+      setAssistantForm({
+        fullName: "",
+        email: "",
+        password: generateAssistantPassword(),
+        services: [],
+        notes: "",
+      });
+
+      toast({ title: "Yordamchi tayinlandi", description: "Kirish ma'lumotlari nusxalash uchun tayyor." });
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+    } catch (error: any) {
+      toast({
+        title: "Xatolik",
+        description: error?.message || "Iltimos, qaytadan urinib ko'ring.",
+        variant: "destructive",
+      });
+    } finally {
+      setAssistantLoading(false);
+    }
+  };
+
   const { data: stats } = useQuery<Statistics>({ queryKey: ["/api/statistics"] });
   const { data: articles = [] } = useQuery<Article[]>({ queryKey: ["/api/articles"] });
   const { data: news = [] } = useQuery<News[]>({ queryKey: ["/api/news"] });
@@ -145,6 +280,16 @@ export default function AdminDashboard() {
     queryKey: ["/api/comments", { approved: false }],
     queryFn: async () => {
       const response = await fetch("/api/comments?approved=false");
+      if (!response.ok) {
+        throw new Error("Sharhlar olinmadi");
+      }
+      return response.json();
+    },
+  });
+  const { data: allComments = [], refetch: refetchAllComments } = useQuery<Comment[]>({
+    queryKey: ["/api/comments"],
+    queryFn: async () => {
+      const response = await fetch("/api/comments");
       if (!response.ok) {
         throw new Error("Sharhlar olinmadi");
       }
@@ -422,6 +567,7 @@ export default function AdminDashboard() {
             {canPublish && (
               <TabsTrigger value="moderation">Moderatsiya</TabsTrigger>
             )}
+            {isSuperAdmin && <TabsTrigger value="assistants">Yordamchi tayinlash</TabsTrigger>}
           </TabsList>
 
           {canPublish && (
@@ -1132,6 +1278,31 @@ export default function AdminDashboard() {
                             >
                               <CheckCircle className="mr-1 h-4 w-4" /> Tasdiqlash
                             </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={async () => {
+                                if (!confirm("Bu sharhni o'chirishni xohlaysizmi?")) return;
+                                const response = await fetch(`/api/comments/${comment.id}`, { method: "DELETE" });
+                                if (!response.ok) {
+                                  toast({
+                                    title: "Sharhni o'chirishda xatolik",
+                                    description: "Iltimos, qaytadan urinib ko'ring.",
+                                    variant: "destructive",
+                                  });
+                                  return;
+                                }
+                                toast({
+                                  title: "Sharh o'chirildi",
+                                  description: "Sharh muvaffaqiyatli o'chirildi.",
+                                });
+                                await queryClient.invalidateQueries({
+                                  queryKey: ["/api/comments"],
+                                });
+                              }}
+                            >
+                              <Trash2 className="mr-1 h-4 w-4" /> O'chirish
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -1139,7 +1310,213 @@ export default function AdminDashboard() {
                     {pendingComments.length === 0 && <p className="text-sm text-muted-foreground">Tasdiqlash uchun sharh qoldirilmagan.</p>}
                   </CardContent>
                 </Card>
+
+                <Card className="border-primary/10">
+                  <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <MessageSquare className="h-5 w-5" />
+                      Barcha sharhlar (G'oyalar klubi)
+                    </CardTitle>
+                    <Badge variant="secondary">
+                      {allComments.filter(c => !c.articleId && !c.newsId && !c.innovationId).length} ta post
+                    </Badge>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {allComments
+                      .filter(c => !c.articleId && !c.newsId && !c.innovationId)
+                      .slice(0, 20)
+                      .map((comment) => (
+                        <div key={comment.id} className="border-b pb-3 last:border-0 last:pb-0">
+                          <p className="text-sm">{comment.content}</p>
+                          <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                              <Badge variant={comment.approved ? "default" : "outline"}>
+                                {comment.approved ? "Chop etilgan" : "Kutilmoqda"}
+                              </Badge>
+                              <Badge variant="outline">{comment.authorId.slice(0, 6)}</Badge>
+                              <span>{formatDate(comment.createdAt)}</span>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={async () => {
+                                if (!confirm("Bu sharhni o'chirishni xohlaysizmi?")) return;
+                                const response = await fetch(`/api/comments/${comment.id}`, { method: "DELETE" });
+                                if (!response.ok) {
+                                  toast({
+                                    title: "Sharhni o'chirishda xatolik",
+                                    description: "Iltimos, qaytadan urinib ko'ring.",
+                                    variant: "destructive",
+                                  });
+                                  return;
+                                }
+                                toast({
+                                  title: "Sharh o'chirildi",
+                                  description: "Sharh muvaffaqiyatli o'chirildi.",
+                                });
+                                await queryClient.invalidateQueries({
+                                  queryKey: ["/api/comments"],
+                                });
+                                refetchAllComments();
+                              }}
+                            >
+                              <Trash2 className="mr-1 h-4 w-4" /> O'chirish
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    {allComments.filter(c => !c.articleId && !c.newsId && !c.innovationId).length === 0 && (
+                      <p className="text-sm text-muted-foreground">Hozircha sharhlar mavjud emas.</p>
+                    )}
+                  </CardContent>
+                </Card>
               </section>
+            </TabsContent>
+          )}
+          {isSuperAdmin && (
+            <TabsContent value="assistants" className="space-y-6">
+              <Card className="border-primary/20">
+                <CardHeader className="space-y-1">
+                  <CardTitle className="flex items-center gap-2">
+                    <UserPlus className="h-5 w-5 text-primary" />
+                    Yordamchi tayinlash
+                  </CardTitle>
+                  <CardDescription>
+                    Kerakli xizmatlarni belgilang, kotibga login va parol yarating, so'ngra ulashish uchun nusxalang.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleAssistantSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="assistant-fullname">To'liq ism</Label>
+                      <Input
+                        id="assistant-fullname"
+                        value={assistantForm.fullName}
+                        onChange={(event) => setAssistantForm((prev) => ({ ...prev, fullName: event.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div>
+                        <Label htmlFor="assistant-email">Gmail manzili</Label>
+                        <Input
+                          id="assistant-email"
+                          type="email"
+                          value={assistantForm.email}
+                          onChange={(event) => setAssistantForm((prev) => ({ ...prev, email: event.target.value }))}
+                          placeholder="assistant@gmail.com"
+                          required
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">Faqat @gmail.com qabul qilinadi.</p>
+                      </div>
+                      <div>
+                        <Label htmlFor="assistant-password">Parol</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="assistant-password"
+                            type="text"
+                            value={assistantForm.password}
+                            onChange={(event) => setAssistantForm((prev) => ({ ...prev, password: event.target.value }))}
+                            required
+                          />
+                          <Button type="button" variant="outline" onClick={regenerateAssistantPassword}>
+                            Yangilash
+                          </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Parolni o'zgartiring yoki yangi generatsiya qiling.</p>
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Xizmatlar</Label>
+                      <p className="text-xs text-muted-foreground mb-3">Kotib mas'ul bo'ladigan bo'limlarni belgilang.</p>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        {assistantServiceOptions.map((service) => (
+                          <label
+                            key={service.id}
+                            className="flex items-start gap-3 rounded-md border border-dashed border-input/50 bg-muted/30 p-3"
+                          >
+                            <Checkbox
+                              id={`service-${service.id}`}
+                              checked={assistantForm.services.includes(service.id)}
+                              onCheckedChange={() => handleAssistantServiceToggle(service.id)}
+                            />
+                            <div>
+                              <p className="text-sm font-medium">{service.label}</p>
+                              <p className="text-xs text-muted-foreground">{service.description}</p>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="assistant-notes">Qo'shimcha topshiriqlar</Label>
+                      <Textarea
+                        id="assistant-notes"
+                        value={assistantForm.notes}
+                        onChange={(event) => setAssistantForm((prev) => ({ ...prev, notes: event.target.value }))}
+                        placeholder="Masalan: har dushanba tadbirlarni yangilash."
+                        rows={3}
+                      />
+                    </div>
+                    <Button type="submit" disabled={assistantLoading} className="w-full">
+                      {assistantLoading ? "Yaratilmoqda..." : "Yordamchini tayinlash"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {assistantResult && (
+                <Card className="border-dashed border-primary/30">
+                  <CardHeader>
+                    <CardTitle>Kirish ma'lumotlari tayyor</CardTitle>
+                    <CardDescription>Quyidagi ma'lumotlarni nusxalab, yordamchiga yuboring.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex flex-col gap-2 rounded-lg border p-3 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p className="text-sm font-medium">Kirish havolasi</p>
+                        <p className="text-sm text-muted-foreground break-all">{assistantResult.link}</p>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => handleAssistantCopy(assistantResult.link, "Havola")}>
+                        <LinkIcon className="h-4 w-4 mr-2" /> Nusxalash
+                      </Button>
+                    </div>
+                    <div className="flex flex-col gap-2 rounded-lg border p-3 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p className="text-sm font-medium">Login (Gmail)</p>
+                        <p className="text-sm text-muted-foreground break-all">{assistantResult.email}</p>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => handleAssistantCopy(assistantResult.email, "Login")}>
+                        <Copy className="h-4 w-4 mr-2" /> Nusxalash
+                      </Button>
+                    </div>
+                    <div className="flex flex-col gap-2 rounded-lg border p-3 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p className="text-sm font-medium">Parol</p>
+                        <p className="text-sm text-muted-foreground">{assistantResult.password}</p>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => handleAssistantCopy(assistantResult.password, "Parol")}>
+                        <Copy className="h-4 w-4 mr-2" /> Nusxalash
+                      </Button>
+                    </div>
+                    {assistantResult.services.length > 0 && (
+                      <div className="rounded-lg border p-3">
+                        <p className="text-sm font-medium mb-2">Biriktirilgan xizmatlar</p>
+                        <div className="flex flex-wrap gap-2">
+                          {assistantResult.services.map((serviceId) => {
+                            const service = assistantServiceOptions.find((option) => option.id === serviceId);
+                            return (
+                              <Badge key={serviceId} variant="secondary">
+                                {service?.label ?? serviceId}
+                              </Badge>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
           )}
         </Tabs>

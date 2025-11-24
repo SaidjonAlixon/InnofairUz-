@@ -32,8 +32,10 @@ export default function UserRegister() {
       return alert("Rolni tanlang: Investor yoki Mijoz.");
     }
     try {
-      await register({ ...form, email: normalizedEmail, role: form.role });
-      navigate("/");
+      const response = await register({ ...form, email: normalizedEmail, role: form.role });
+      // Show success message about email verification
+      alert("Ro'yxatdan o'tdingiz! Gmail manzilingizni tasdiqlash uchun emailingizni tekshiring.");
+      navigate("/auth/login");
     } catch (err) {
       // context handles error
     }

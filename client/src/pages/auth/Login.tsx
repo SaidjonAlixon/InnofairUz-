@@ -76,9 +76,6 @@ export default function UserLogin() {
           <p className="mt-4 text-sm text-muted-foreground text-center">
             Hisobingiz yo'qmi? <Link href="/auth/register">Ro'yhatdan o'ting</Link>
           </p>
-          <p className="mt-2 text-xs text-muted-foreground text-center">
-            Administrator uchun <Link href="/admin/login">super admin paneliga kiring</Link>.
-          </p>
         </CardContent>
       </Card>
     </div>

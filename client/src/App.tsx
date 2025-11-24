@@ -16,15 +16,18 @@ import Media from "@/pages/Media";
 import Products from "@/pages/Products";
 import Solutions from "@/pages/Solutions";
 import Collaboration from "@/pages/Ideas";
+import IdeasClub from "@/pages/IdeasClub";
 import NotFound from "@/pages/not-found";
 import AdminLogin from "@/pages/admin/Login";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminRegister from "@/pages/admin/Register";
 import UserLogin from "@/pages/auth/Login";
 import UserRegister from "@/pages/auth/Register";
+import VerifyEmail from "@/pages/auth/VerifyEmail";
+import Profile from "@/pages/Profile";
 import { AuthProvider } from "@/context/AuthContext";
 
-function Router() {
+function AppRoutes() {
   return (
     <Switch>
       <Route path="/" component={Home} />
@@ -38,8 +41,11 @@ function Router() {
       <Route path="/mahsulotlar" component={Products} />
       <Route path="/yechimlar" component={Solutions} />
       <Route path="/hamkorlik" component={Collaboration} />
+      <Route path="/goyalar-klubi" component={IdeasClub} />
       <Route path="/auth/login" component={UserLogin} />
       <Route path="/auth/register" component={UserRegister} />
+      <Route path="/auth/verify-email" component={VerifyEmail} />
+      <Route path="/profile" component={Profile} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin/register" component={AdminRegister} />
       <Route path="/admin" component={AdminDashboard} />
@@ -50,21 +56,27 @@ function Router() {
   );
 }
 
-function App() {
+function AppContent() {
   const [location] = useLocation();
   const isAdminRoute = location.startsWith("/admin");
 
   return (
+    <div className="flex flex-col min-h-screen">
+      {!isAdminRoute && <Header />}
+      <main className={`flex-1 ${isAdminRoute ? "bg-muted/20" : ""}`}>
+        <AppRoutes />
+      </main>
+      {!isAdminRoute && <Footer />}
+    </div>
+  );
+}
+
+function App() {
+  return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
-          <div className="flex flex-col min-h-screen">
-            {!isAdminRoute && <Header />}
-            <main className={`flex-1 ${isAdminRoute ? "bg-muted/20" : ""}`}>
-              <Router />
-            </main>
-            {!isAdminRoute && <Footer />}
-          </div>
+          <AppContent />
           <Toaster />
         </AuthProvider>
       </TooltipProvider>

@@ -7,6 +7,8 @@ type AuthContextValue = {
   user: AuthUser;
   login: (credentials: { email: string; password: string }) => Promise<void>;
   register: (payload: { email: string; password: string; fullName: string; role: "investor" | "mijoz"; avatar?: string }) => Promise<void>;
+  updateUser: (userId: string, updates: { fullName?: string; email?: string; avatar?: string }) => Promise<void>;
+  changePassword: (userId: string, currentPassword: string, newPassword: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
   error: string | null;
@@ -116,6 +118,67 @@ const login = async ({ email, password }: { email: string; password: string }) =
     }
   };
 
+  const updateUser = async (userId: string, updates: { fullName?: string; email?: string; avatar?: string }) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/auth/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, ...updates }),
+      }).catch((networkError) => {
+        // Handle network errors (server not running, CORS, etc.)
+        throw new Error("Server bilan bog'lanishda xatolik. Iltimos, server ishlamoqda ekanligini tekshiring.");
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload?.error || `Server xatosi: ${response.status} ${response.statusText}`);
+      }
+
+      const data = (await response.json()) as { user: AuthUser };
+      if (!data?.user) {
+        throw new Error("Profil yangilash javobi noto'g'ri");
+      }
+
+      setUser(data.user);
+    } catch (err: any) {
+      const errorMessage = err.message || "Profil yangilash xatosi";
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const changePassword = async (userId: string, currentPassword: string, newPassword: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/auth/change-password", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, currentPassword, newPassword }),
+      }).catch((networkError) => {
+        // Handle network errors (server not running, CORS, etc.)
+        throw new Error("Server bilan bog'lanishda xatolik. Iltimos, server ishlamoqda ekanligini tekshiring.");
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload?.error || `Server xatosi: ${response.status} ${response.statusText}`);
+      }
+
+      // Password change doesn't update user object
+    } catch (err: any) {
+      const errorMessage = err.message || "Parol o'zgartirish xatosi";
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = () => {
     setUser(null);
   };
@@ -125,6 +188,8 @@ const login = async ({ email, password }: { email: string; password: string }) =
       user,
       login,
       register,
+      updateUser,
+      changePassword,
       logout,
       isLoading,
       error,

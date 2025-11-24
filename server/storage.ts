@@ -6,9 +6,16 @@ import {
   type Innovation, type InsertInnovation,
   type Comment, type InsertComment,
   type File, type InsertFile,
-  type Statistics
+  type Statistics,
+  type EmailVerificationToken
 } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { db } from "./db";
+import { 
+  users, categories, articles, news, innovations, 
+  comments, files, statistics, emailVerificationTokens
+} from "@shared/schema";
+import { eq, and, or, isNull, sql, desc } from "drizzle-orm";
+import { log } from "./logger";
 
 export interface IStorage {
   // Users
@@ -60,7 +67,7 @@ export interface IStorage {
   getCommentsByNews(newsId: string, approved?: boolean): Promise<Comment[]>;
   getCommentsByInnovation(innovationId: string, approved?: boolean): Promise<Comment[]>;
   getAllComments(approved?: boolean): Promise<Comment[]>;
-  createComment(comment: InsertComment): Promise<Comment>;
+  createComment(comment: InsertComment, autoApprove?: boolean): Promise<Comment>;
   approveComment(id: string): Promise<Comment | undefined>;
   deleteComment(id: string): Promise<boolean>;
   likeComment(id: string): Promise<void>;
@@ -76,40 +83,89 @@ export interface IStorage {
   updateStatistics(): Promise<Statistics>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private categories: Map<string, Category>;
-  private articles: Map<string, Article>;
-  private newsList: Map<string, News>;
-  private innovations: Map<string, Innovation>;
-  private comments: Map<string, Comment>;
-  private files: Map<string, File>;
-  private stats: Statistics;
-
+export class PostgresStorage implements IStorage {
   constructor() {
-    this.users = new Map();
-    this.categories = new Map();
-    this.articles = new Map();
-    this.newsList = new Map();
-    this.innovations = new Map();
-    this.comments = new Map();
-    this.files = new Map();
-    this.stats = {
-      id: randomUUID(),
-      totalArticles: 0,
-      totalNews: 0,
-      totalInnovations: 0,
-      totalUsers: 0,
-      totalViews: 0,
-      updatedAt: new Date(),
-    };
+    // Initialize default data on first run
+    this.initialize();
+  }
 
-    // Initialize with default categories
-    this.initializeCategories();
-    // Initialize with a default admin user
-    this.initializeAdmin();
-    // Initialize with demo data
-    this.initializeDemoData();
+  private async initialize() {
+    try {
+      log("Initializing database...");
+      
+      // Test database connection first
+      try {
+        log("Testing database connection...");
+        await db.select().from(categories).limit(1);
+        log("Database connection successful");
+      } catch (connError: any) {
+        const errorMessage = connError?.message || "Unknown connection error";
+        const errorName = connError?.name || "N/A";
+        const errorCode = connError?.code || "N/A";
+        const errorCause = connError?.cause ? JSON.stringify(connError.cause) : "N/A";
+        
+        log(`Database connection failed: ${errorMessage}`, "error");
+        log(`Error name: ${errorName}`, "error");
+        log(`Error code: ${errorCode}`, "error");
+        log(`Error cause: ${errorCause}`, "error");
+        
+        if (connError?.stack) {
+          const stackLines = connError.stack.split('\n').slice(0, 5).join('\n');
+          log(`Error stack (first 5 lines):\n${stackLines}`, "error");
+        }
+        
+        // Check if DATABASE_URL is set
+        if (!process.env.DATABASE_URL) {
+          log("DATABASE_URL environment variable is not set!", "error");
+        } else {
+          const dbUrl = process.env.DATABASE_URL;
+          const maskedUrl = dbUrl.substring(0, 20) + "..." + dbUrl.substring(dbUrl.length - 10);
+          log(`DATABASE_URL is set: ${maskedUrl}`, "error");
+        }
+        
+        return; // Exit early if connection fails
+      }
+      
+      // Check if categories exist
+      const existingCategories = await db.select().from(categories).limit(1);
+      if (existingCategories.length === 0) {
+        log("Initializing categories...");
+        await this.initializeCategories();
+        log("Categories initialized");
+      }
+
+      // Check if admin user exists
+      const adminUser = await db.select().from(users).where(eq(users.email, "admin@gmail.com")).limit(1);
+      if (adminUser.length === 0) {
+        log("Initializing admin users...");
+        await this.initializeAdmin();
+        log("Admin users initialized");
+      }
+
+      // Check if statistics exist
+      const existingStats = await db.select().from(statistics).limit(1);
+      if (existingStats.length === 0) {
+        log("Initializing statistics...");
+        await this.updateStatistics();
+        log("Statistics initialized");
+      }
+      log("Database initialization completed successfully");
+    } catch (error: any) {
+      const errorMessage = error?.message || "Unknown error";
+      const errorCode = error?.code || "N/A";
+      const errorName = error?.name || "N/A";
+      log(`Error initializing database: ${errorMessage}`, "error");
+      log(`Error name: ${errorName}`, "error");
+      log(`Error code: ${errorCode}`, "error");
+      if (error?.cause) {
+        log(`Error cause: ${JSON.stringify(error.cause)}`, "error");
+      }
+      if (error?.stack) {
+        const stackLines = error.stack.split('\n').slice(0, 10).join('\n');
+        log(`Error stack (first 10 lines):\n${stackLines}`, "error");
+      }
+      // Don't throw - allow server to start even if initialization fails
+    }
   }
 
   private async initializeCategories() {
@@ -123,546 +179,480 @@ export class MemStorage implements IStorage {
     ];
 
     for (const cat of defaultCategories) {
-      await this.createCategory(cat);
+      await db.insert(categories).values(cat).onConflictDoNothing();
     }
   }
 
   private async initializeAdmin() {
-    // Create default admin user (password: admin123)
-    await this.createUser({
-      email: "admin@gmail.com",
-      password: "admin123", // In production, this should be hashed
-      fullName: "Super Admin",
-      role: "super_admin",
-    });
+    const defaultUsers = [
+      {
+        email: "admin@gmail.com",
+        password: "admin123",
+        fullName: "Super Admin",
+        role: "super_admin",
+      },
+      {
+        email: "editor@gmail.com",
+        password: "editor123",
+        fullName: "Aziz Normatov",
+        role: "editor_admin",
+      },
+      {
+        email: "malika@gmail.com",
+        password: "user123",
+        fullName: "Malika Yusupova",
+        role: "user",
+      },
+      {
+        email: "javohir@gmail.com",
+        password: "user123",
+        fullName: "Javohir Karimov",
+        role: "user",
+      },
+    ];
 
-    // Create demo editor
-    await this.createUser({
-      email: "editor@gmail.com",
-      password: "editor123",
-      fullName: "Aziz Normatov",
-      role: "editor_admin",
-    });
-
-    // Create demo users
-    await this.createUser({
-      email: "malika@gmail.com",
-      password: "user123",
-      fullName: "Malika Yusupova",
-      role: "user",
-    });
-
-    await this.createUser({
-      email: "javohir@gmail.com",
-      password: "user123",
-      fullName: "Javohir Karimov",
-      role: "user",
-    });
-  }
-
-  private async initializeDemoData() {
-    // Wait for categories and users to be initialized
-    setTimeout(async () => {
-      const categories = await this.getAllCategories();
-      const users = await this.getAllUsers();
-      
-      if (categories.length === 0 || users.length === 0) return;
-
-      const techCat = categories.find(c => c.slug === "texnologiya");
-      const medCat = categories.find(c => c.slug === "tibbiyot");
-      const eduCat = categories.find(c => c.slug === "talim");
-      const energyCat = categories.find(c => c.slug === "energetika");
-      const startupCat = categories.find(c => c.slug === "startap");
-      const agriCat = categories.find(c => c.slug === "qishloq-xojaligi");
-      
-      const editor = users.find(u => u.role === "editor_admin");
-      if (!editor) return;
-
-      // Create demo articles
-      if (techCat) {
-        await this.createArticle({
-          title: "Kvant kompyuterlari: Kelajak texnologiyasi bugun",
-          slug: "kvant-kompyuterlari-kelajak-texnologiyasi",
-          excerpt: "Kvant kompyuterlari hozirgi paytda eng istiqbolli texnologiyalardan biri hisoblanadi va kelajakda bir qancha muammolarni hal qilishda yordam beradi.",
-          content: `<p>Kvant kompyuterlari zamonaviy texnologiyaning eng muhim yutuqlaridan biri hisoblanadi. Ular klassik kompyuterlardan tubdan farq qiladi va ko'plab murakkab muammolarni hal qilishda katta imkoniyatlarga ega.</p>
-            <h2>Kvant kompyuterlari qanday ishlaydi?</h2>
-            <p>Kvant kompyuterlari kvant mexanikasi qonunlaridan foydalanadi. Klassik kompyuterlar ma'lumotni bitlar (0 va 1) ko'rinishida saqlasa, kvant kompyuterlari kubitlardan foydalanadi. Kubitlar bir vaqtning o'zida bir nechta holatda bo'lishi mumkin.</p>
-            <h2>Qo'llanilish sohalari</h2>
-            <ul>
-              <li>Tibbiyot va dori-darmonlarni kashf etish</li>
-              <li>Kriptografiya va xavfsizlik</li>
-              <li>Moliyaviy modellashtirish</li>
-              <li>Sun'iy intellekt va mashinali o'rganish</li>
-            </ul>`,
-          image: null,
-          categoryId: techCat.id,
-          authorId: editor.id,
-          readTime: "8 daqiqa",
-          published: true,
-        });
-      }
-
-      if (medCat) {
-        await this.createArticle({
-          title: "Sun'iy intellekt tibbiyotda: Yangi imkoniyatlar",
-          slug: "suniy-intellekt-tibbiyotda",
-          excerpt: "AI texnologiyalari tibbiyotda diagnostika va davolashni yangi bosqichga olib chiqmoqda. Kasalliklarni erta aniqlash imkoniyatlari kengaymoqda.",
-          content: `<p>Sun'iy intellekt tibbiyot sohasida inqilob yaratmoqda. AI tizimlar shifokorlarga aniqroq tashxis qo'yishda yordam bermoqda.</p>`,
-          image: null,
-          categoryId: medCat.id,
-          authorId: editor.id,
-          readTime: "6 daqiqa",
-          published: true,
-        });
-      }
-
-      if (eduCat) {
-        await this.createArticle({
-          title: "Virtual haqiqat ta'limda: Interaktiv ta'lim usullari",
-          slug: "virtual-haqiqat-talimda",
-          excerpt: "VR texnologiyalari talabalar uchun yangicha ta'lim tajribasini taqdim etmoqda. O'quv jarayoni yanada qiziqarli va samarali bo'lmoqda.",
-          content: `<p>Virtual haqiqat ta'lim sohasida katta o'zgarishlar yaratmoqda.</p>`,
-          image: null,
-          categoryId: eduCat.id,
-          authorId: editor.id,
-          readTime: "5 daqiqa",
-          published: true,
-        });
-      }
-
-      // Create demo news
-      if (energyCat) {
-        await this.createNews({
-          title: "O'zbekistonda yangi quyosh elektr stansiyasi ishga tushirildi",
-          slug: "yangi-quyosh-elektr-stansiyasi",
-          content: "Toshkent viloyatida 100 MVt quvvatli quyosh elektr stansiyasi rasman ishga tushirildi.",
-          image: null,
-          categoryId: energyCat.id,
-          authorId: editor.id,
-          published: true,
-        });
-      }
-
-      if (startupCat) {
-        await this.createNews({
-          title: "Mahalliy startaplar xalqaro investitsiya oldi",
-          slug: "startaplar-investitsiya-oldi",
-          content: "O'zbekiston startaplari 5 million dollar investitsiya jalb qildi.",
-          image: null,
-          categoryId: startupCat.id,
-          authorId: editor.id,
-          published: true,
-        });
-      }
-
-      // Create demo innovations
-      if (energyCat) {
-        await this.createInnovation({
-          title: "Quyosh energiyasini saqlash uchun yangi batareya tizimi",
-          slug: "yangi-batareya-tizimi",
-          description: "Ushbu loyiha quyosh energiyasini samaraliroq saqlash va foydalanish imkonini beradi, bu esa energiya tejashga yordam beradi.",
-          content: "Batareya tizimi quyosh panellaridan olingan energiyani saqlaydi va kerak bo'lganda tarmoqqa uzatadi.",
-          image: null,
-          categoryId: energyCat.id,
-          authorId: editor.id,
-          published: true,
-        });
-      }
-
-      if (agriCat) {
-        await this.createInnovation({
-          title: "Aqlli issiqxona tizimi - kelajak qishloq xo'jaligi",
-          slug: "aqlli-issiqxona-tizimi",
-          description: "IoT texnologiyalari yordamida ishlaydigan avtomatlashtirilgan issiqxona tizimi hosildorlikni 40% oshiradi.",
-          content: "Tizim harorat, namlik va yorug'likni avtomatik nazorat qiladi.",
-          image: null,
-          categoryId: agriCat.id,
-          authorId: editor.id,
-          published: true,
-        });
-      }
-
-      if (techCat) {
-        await this.createInnovation({
-          title: "Mobil ilova orqali tibbiy xizmatlar",
-          slug: "tibbiy-xizmatlar-ilovasi",
-          description: "Bemorlarga shifokorlar bilan onlayn maslahatlashish va tibbiy yordamni tezkor olish imkonini beruvchi platforma.",
-          content: "Ilova orqali bemor shifokor bilan bog'lanib, maslahat olishi mumkin.",
-          image: null,
-          categoryId: techCat.id,
-          authorId: editor.id,
-          published: true,
-        });
-      }
-
-      await this.updateStatistics();
-    }, 100);
+    for (const userData of defaultUsers) {
+      await db.insert(users).values({
+        ...userData,
+        email: userData.email.toLowerCase(),
+      }).onConflictDoNothing();
+    }
   }
 
   // Users
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    return result[0];
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find((user) => user.email === email);
+    const normalizedEmail = email.toLowerCase().trim();
+    const result = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+    return result[0];
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = {
-      ...insertUser,
-      role: insertUser.role || "user",
-      avatar: insertUser.avatar ?? null,
-      email: insertUser.email.toLowerCase(),
-      id,
-      createdAt: new Date(),
-    };
-    this.users.set(id, user);
+  async createUser(userData: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values({
+      ...userData,
+      email: userData.email.toLowerCase(),
+      role: userData.role || "user",
+    }).returning();
     await this.updateStatistics();
     return user;
   }
 
   async getAllUsers(): Promise<User[]> {
-    return Array.from(this.users.values());
+    return await db.select().from(users);
   }
 
-  async updateUser(id: string, userData: Partial<InsertUser>): Promise<User | undefined> {
-    const user = this.users.get(id);
-    if (!user) return undefined;
-    
-    const updated = { ...user, ...userData };
-    this.users.set(id, updated);
-    return updated;
+  async updateUser(id: string, userData: Partial<InsertUser & { emailVerified?: boolean }>): Promise<User | undefined> {
+    try {
+      const updateData: any = { ...userData };
+      if (updateData.email) {
+        updateData.email = updateData.email.toLowerCase();
+      }
+      // Remove undefined values
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key] === undefined) {
+          delete updateData[key];
+        }
+      });
+      
+      // Ensure we only update valid fields
+      const validFields: (keyof User)[] = ['fullName', 'email', 'avatar', 'role', 'emailVerified', 'metadata'];
+      const filteredData: any = {};
+      for (const key of validFields) {
+        if (key in updateData) {
+          filteredData[key] = updateData[key];
+        }
+      }
+      
+      if (Object.keys(filteredData).length === 0) {
+        return await this.getUser(id);
+      }
+      
+      const [updated] = await db.update(users)
+        .set(filteredData)
+        .where(eq(users.id, id))
+        .returning();
+      
+      return updated;
+    } catch (error: any) {
+      const errorMessage = error?.message || "Unknown error";
+      const errorCode = error?.code || "N/A";
+      const errorDetail = error?.detail || error?.hint || "N/A";
+      log(`Error updating user: ${errorMessage}`, "error");
+      log(`Error code: ${errorCode}`, "error");
+      log(`Error detail: ${errorDetail}`, "error");
+      if (error?.stack) {
+        log(`Error stack: ${error.stack.substring(0, 500)}`, "error");
+      }
+      throw error;
+    }
   }
 
   async deleteUser(id: string): Promise<boolean> {
-    const deleted = this.users.delete(id);
-    if (deleted) await this.updateStatistics();
-    return deleted;
+    const result = await db.delete(users).where(eq(users.id, id)).returning();
+    if (result.length > 0) {
+      await this.updateStatistics();
+      return true;
+    }
+    return false;
   }
 
   // Categories
   async getAllCategories(): Promise<Category[]> {
-    return Array.from(this.categories.values());
+    return await db.select().from(categories);
   }
 
   async getCategory(id: string): Promise<Category | undefined> {
-    return this.categories.get(id);
+    const result = await db.select().from(categories).where(eq(categories.id, id)).limit(1);
+    return result[0];
   }
 
   async getCategoryBySlug(slug: string): Promise<Category | undefined> {
-    return Array.from(this.categories.values()).find((cat) => cat.slug === slug);
+    const result = await db.select().from(categories).where(eq(categories.slug, slug)).limit(1);
+    return result[0];
   }
 
-  async createCategory(category: InsertCategory): Promise<Category> {
-    const id = randomUUID();
-    const newCategory: Category = { ...category, id };
-    this.categories.set(id, newCategory);
-    return newCategory;
+  async createCategory(categoryData: InsertCategory): Promise<Category> {
+    const [category] = await db.insert(categories).values(categoryData).returning();
+    return category;
   }
 
   // Articles
   async getAllArticles(published?: boolean): Promise<Article[]> {
-    const articles = Array.from(this.articles.values());
     if (published !== undefined) {
-      return articles.filter((a) => a.published === published);
+      return await db.select().from(articles).where(eq(articles.published, published)).orderBy(desc(articles.createdAt));
     }
-    return articles;
+    return await db.select().from(articles).orderBy(desc(articles.createdAt));
   }
 
   async getArticle(id: string): Promise<Article | undefined> {
-    return this.articles.get(id);
+    const result = await db.select().from(articles).where(eq(articles.id, id)).limit(1);
+    return result[0];
   }
 
   async getArticleBySlug(slug: string): Promise<Article | undefined> {
-    return Array.from(this.articles.values()).find((a) => a.slug === slug);
+    const result = await db.select().from(articles).where(eq(articles.slug, slug)).limit(1);
+    return result[0];
   }
 
   async getArticlesByAuthor(authorId: string): Promise<Article[]> {
-    return Array.from(this.articles.values()).filter((a) => a.authorId === authorId);
+    return await db.select().from(articles).where(eq(articles.authorId, authorId)).orderBy(desc(articles.createdAt));
   }
 
   async getArticlesByCategory(categoryId: string): Promise<Article[]> {
-    return Array.from(this.articles.values()).filter((a) => a.categoryId === categoryId);
+    return await db.select().from(articles).where(eq(articles.categoryId, categoryId)).orderBy(desc(articles.createdAt));
   }
 
-  async createArticle(article: InsertArticle): Promise<Article> {
-    const id = randomUUID();
-    const now = new Date();
-    const newArticle: Article = {
-      ...article,
-      image: article.image || null,
-      categoryId: article.categoryId || null,
-      published: article.published || false,
-      readTime: article.readTime || "5 daqiqa",
-      id,
+  async createArticle(articleData: InsertArticle): Promise<Article> {
+    const [article] = await db.insert(articles).values({
+      ...articleData,
+      image: articleData.image || null,
+      categoryId: articleData.categoryId || null,
+      published: articleData.published || false,
+      readTime: articleData.readTime || "5 daqiqa",
       views: 0,
-      createdAt: now,
-      updatedAt: now,
-    };
-    this.articles.set(id, newArticle);
+    }).returning();
     await this.updateStatistics();
-    return newArticle;
+    return article;
   }
 
   async updateArticle(id: string, articleData: Partial<InsertArticle>): Promise<Article | undefined> {
-    const article = this.articles.get(id);
-    if (!article) return undefined;
-
-    const updated = { ...article, ...articleData, updatedAt: new Date() };
-    this.articles.set(id, updated);
+    const [updated] = await db.update(articles)
+      .set({ ...articleData, updatedAt: new Date() })
+      .where(eq(articles.id, id))
+      .returning();
     return updated;
   }
 
   async deleteArticle(id: string): Promise<boolean> {
-    const deleted = this.articles.delete(id);
-    if (deleted) await this.updateStatistics();
-    return deleted;
+    const result = await db.delete(articles).where(eq(articles.id, id)).returning();
+    if (result.length > 0) {
+      await this.updateStatistics();
+      return true;
+    }
+    return false;
   }
 
   async incrementArticleViews(id: string): Promise<void> {
-    const article = this.articles.get(id);
-    if (article) {
-      article.views += 1;
-      this.articles.set(id, article);
-      await this.updateStatistics();
-    }
+    await db.update(articles)
+      .set({ views: sql`${articles.views} + 1` })
+      .where(eq(articles.id, id));
+    await this.updateStatistics();
   }
 
   // News
   async getAllNews(published?: boolean): Promise<News[]> {
-    const news = Array.from(this.newsList.values());
     if (published !== undefined) {
-      return news.filter((n) => n.published === published);
+      return await db.select().from(news).where(eq(news.published, published)).orderBy(desc(news.createdAt));
     }
-    return news;
+    return await db.select().from(news).orderBy(desc(news.createdAt));
   }
 
   async getNews(id: string): Promise<News | undefined> {
-    return this.newsList.get(id);
+    const result = await db.select().from(news).where(eq(news.id, id)).limit(1);
+    return result[0];
   }
 
   async getNewsBySlug(slug: string): Promise<News | undefined> {
-    return Array.from(this.newsList.values()).find((n) => n.slug === slug);
+    const result = await db.select().from(news).where(eq(news.slug, slug)).limit(1);
+    return result[0];
   }
 
   async getNewsByAuthor(authorId: string): Promise<News[]> {
-    return Array.from(this.newsList.values()).filter((n) => n.authorId === authorId);
+    return await db.select().from(news).where(eq(news.authorId, authorId)).orderBy(desc(news.createdAt));
   }
 
-  async createNews(news: InsertNews): Promise<News> {
-    const id = randomUUID();
-    const now = new Date();
-    const newNews: News = {
-      ...news,
-      content: news.content || null,
-      image: news.image || null,
-      categoryId: news.categoryId || null,
-      published: news.published || false,
-      id,
-      createdAt: now,
-      updatedAt: now,
-    };
-    this.newsList.set(id, newNews);
+  async createNews(newsData: InsertNews): Promise<News> {
+    const [newsItem] = await db.insert(news).values({
+      ...newsData,
+      content: newsData.content || null,
+      image: newsData.image || null,
+      categoryId: newsData.categoryId || null,
+      published: newsData.published || false,
+    }).returning();
     await this.updateStatistics();
-    return newNews;
+    return newsItem;
   }
 
   async updateNews(id: string, newsData: Partial<InsertNews>): Promise<News | undefined> {
-    const news = this.newsList.get(id);
-    if (!news) return undefined;
-
-    const updated = { ...news, ...newsData, updatedAt: new Date() };
-    this.newsList.set(id, updated);
+    const [updated] = await db.update(news)
+      .set({ ...newsData, updatedAt: new Date() })
+      .where(eq(news.id, id))
+      .returning();
     return updated;
   }
 
   async deleteNews(id: string): Promise<boolean> {
-    const deleted = this.newsList.delete(id);
-    if (deleted) await this.updateStatistics();
-    return deleted;
+    const result = await db.delete(news).where(eq(news.id, id)).returning();
+    if (result.length > 0) {
+      await this.updateStatistics();
+      return true;
+    }
+    return false;
   }
 
   // Innovations
   async getAllInnovations(published?: boolean): Promise<Innovation[]> {
-    const innovations = Array.from(this.innovations.values());
     if (published !== undefined) {
-      return innovations.filter((i) => i.published === published);
+      return await db.select().from(innovations).where(eq(innovations.published, published)).orderBy(desc(innovations.createdAt));
     }
-    return innovations;
+    return await db.select().from(innovations).orderBy(desc(innovations.createdAt));
   }
 
   async getInnovation(id: string): Promise<Innovation | undefined> {
-    return this.innovations.get(id);
+    const result = await db.select().from(innovations).where(eq(innovations.id, id)).limit(1);
+    return result[0];
   }
 
   async getInnovationBySlug(slug: string): Promise<Innovation | undefined> {
-    return Array.from(this.innovations.values()).find((i) => i.slug === slug);
+    const result = await db.select().from(innovations).where(eq(innovations.slug, slug)).limit(1);
+    return result[0];
   }
 
   async getInnovationsByAuthor(authorId: string): Promise<Innovation[]> {
-    return Array.from(this.innovations.values()).filter((i) => i.authorId === authorId);
+    return await db.select().from(innovations).where(eq(innovations.authorId, authorId)).orderBy(desc(innovations.createdAt));
   }
 
-  async createInnovation(innovation: InsertInnovation): Promise<Innovation> {
-    const id = randomUUID();
-    const now = new Date();
-    const newInnovation: Innovation = {
-      ...innovation,
-      content: innovation.content || null,
-      image: innovation.image || null,
-      categoryId: innovation.categoryId || null,
-      published: innovation.published || false,
-      id,
+  async createInnovation(innovationData: InsertInnovation): Promise<Innovation> {
+    const [innovation] = await db.insert(innovations).values({
+      ...innovationData,
+      content: innovationData.content || null,
+      image: innovationData.image || null,
+      categoryId: innovationData.categoryId || null,
+      published: innovationData.published || false,
       likes: 0,
-      createdAt: now,
-      updatedAt: now,
-    };
-    this.innovations.set(id, newInnovation);
+    }).returning();
     await this.updateStatistics();
-    return newInnovation;
+    return innovation;
   }
 
   async updateInnovation(id: string, innovationData: Partial<InsertInnovation>): Promise<Innovation | undefined> {
-    const innovation = this.innovations.get(id);
-    if (!innovation) return undefined;
-
-    const updated = { ...innovation, ...innovationData, updatedAt: new Date() };
-    this.innovations.set(id, updated);
+    const [updated] = await db.update(innovations)
+      .set({ ...innovationData, updatedAt: new Date() })
+      .where(eq(innovations.id, id))
+      .returning();
     return updated;
   }
 
   async deleteInnovation(id: string): Promise<boolean> {
-    const deleted = this.innovations.delete(id);
-    if (deleted) await this.updateStatistics();
-    return deleted;
+    const result = await db.delete(innovations).where(eq(innovations.id, id)).returning();
+    if (result.length > 0) {
+      await this.updateStatistics();
+      return true;
+    }
+    return false;
   }
 
   async likeInnovation(id: string): Promise<void> {
-    const innovation = this.innovations.get(id);
-    if (innovation) {
-      innovation.likes += 1;
-      this.innovations.set(id, innovation);
-    }
+    await db.update(innovations)
+      .set({ likes: sql`${innovations.likes} + 1` })
+      .where(eq(innovations.id, id));
   }
 
   // Comments
   async getCommentsByArticle(articleId: string, approved?: boolean): Promise<Comment[]> {
-    const comments = Array.from(this.comments.values()).filter((c) => c.articleId === articleId);
+    const conditions = [eq(comments.articleId, articleId)];
     if (approved !== undefined) {
-      return comments.filter((c) => c.approved === approved);
+      conditions.push(eq(comments.approved, approved));
     }
-    return comments;
+    return await db.select().from(comments).where(and(...conditions)).orderBy(desc(comments.createdAt));
   }
 
   async getCommentsByNews(newsId: string, approved?: boolean): Promise<Comment[]> {
-    const comments = Array.from(this.comments.values()).filter((c) => c.newsId === newsId);
+    const conditions = [eq(comments.newsId, newsId)];
     if (approved !== undefined) {
-      return comments.filter((c) => c.approved === approved);
+      conditions.push(eq(comments.approved, approved));
     }
-    return comments;
+    return await db.select().from(comments).where(and(...conditions)).orderBy(desc(comments.createdAt));
   }
 
   async getCommentsByInnovation(innovationId: string, approved?: boolean): Promise<Comment[]> {
-    const comments = Array.from(this.comments.values()).filter((c) => c.innovationId === innovationId);
+    const conditions = [eq(comments.innovationId, innovationId)];
     if (approved !== undefined) {
-      return comments.filter((c) => c.approved === approved);
+      conditions.push(eq(comments.approved, approved));
     }
-    return comments;
+    return await db.select().from(comments).where(and(...conditions)).orderBy(desc(comments.createdAt));
   }
 
   async getAllComments(approved?: boolean): Promise<Comment[]> {
-    const comments = Array.from(this.comments.values());
     if (approved !== undefined) {
-      return comments.filter((c) => c.approved === approved);
+      return await db.select().from(comments).where(eq(comments.approved, approved)).orderBy(desc(comments.createdAt));
     }
-    return comments;
+    return await db.select().from(comments).orderBy(desc(comments.createdAt));
   }
 
-  async createComment(comment: InsertComment): Promise<Comment> {
-    const id = randomUUID();
-    const newComment: Comment = {
-      ...comment,
-      articleId: comment.articleId || null,
-      newsId: comment.newsId || null,
-      innovationId: comment.innovationId || null,
-      parentId: comment.parentId || null,
-      id,
+  async createComment(commentData: InsertComment, autoApprove: boolean = false): Promise<Comment> {
+    const [comment] = await db.insert(comments).values({
+      ...commentData,
+      articleId: commentData.articleId || null,
+      newsId: commentData.newsId || null,
+      innovationId: commentData.innovationId || null,
+      parentId: commentData.parentId || null,
       likes: 0,
-      approved: false,
-      createdAt: new Date(),
-    };
-    this.comments.set(id, newComment);
-    return newComment;
-  }
-
-  async approveComment(id: string): Promise<Comment | undefined> {
-    const comment = this.comments.get(id);
-    if (!comment) return undefined;
-
-    comment.approved = true;
-    this.comments.set(id, comment);
+      approved: autoApprove, // Auto-approve for general discussions (G'oyalar klubi)
+    }).returning();
     return comment;
   }
 
+  async approveComment(id: string): Promise<Comment | undefined> {
+    const [updated] = await db.update(comments)
+      .set({ approved: true })
+      .where(eq(comments.id, id))
+      .returning();
+    return updated;
+  }
+
   async deleteComment(id: string): Promise<boolean> {
-    return this.comments.delete(id);
+    const result = await db.delete(comments).where(eq(comments.id, id)).returning();
+    return result.length > 0;
   }
 
   async likeComment(id: string): Promise<void> {
-    const comment = this.comments.get(id);
-    if (comment) {
-      comment.likes += 1;
-      this.comments.set(id, comment);
-    }
+    await db.update(comments)
+      .set({ likes: sql`${comments.likes} + 1` })
+      .where(eq(comments.id, id));
   }
 
   // Files
   async getAllFiles(): Promise<File[]> {
-    return Array.from(this.files.values());
+    return await db.select().from(files).orderBy(desc(files.createdAt));
   }
 
   async getFile(id: string): Promise<File | undefined> {
-    return this.files.get(id);
+    const result = await db.select().from(files).where(eq(files.id, id)).limit(1);
+    return result[0];
   }
 
-  async createFile(file: InsertFile): Promise<File> {
-    const id = randomUUID();
-    const newFile: File = {
-      ...file,
-      description: file.description || null,
-      articleId: file.articleId || null,
-      newsId: file.newsId || null,
-      innovationId: file.innovationId || null,
-      id,
-      createdAt: new Date(),
-    };
-    this.files.set(id, newFile);
-    return newFile;
+  async createFile(fileData: InsertFile): Promise<File> {
+    const [file] = await db.insert(files).values({
+      ...fileData,
+      description: fileData.description || null,
+      articleId: fileData.articleId || null,
+      newsId: fileData.newsId || null,
+      innovationId: fileData.innovationId || null,
+    }).returning();
+    return file;
   }
 
   async deleteFile(id: string): Promise<boolean> {
-    return this.files.delete(id);
+    const result = await db.delete(files).where(eq(files.id, id)).returning();
+    return result.length > 0;
   }
 
   // Statistics
   async getStatistics(): Promise<Statistics> {
-    return this.stats;
+    const result = await db.select().from(statistics).limit(1);
+    if (result.length > 0) {
+      return result[0];
+    }
+    // If no statistics exist, create one
+    return await this.updateStatistics();
   }
 
   async updateStatistics(): Promise<Statistics> {
-    this.stats = {
-      ...this.stats,
-      totalArticles: this.articles.size,
-      totalNews: this.newsList.size,
-      totalInnovations: this.innovations.size,
-      totalUsers: this.users.size,
-      totalViews: Array.from(this.articles.values()).reduce((sum, a) => sum + a.views, 0),
+    const [articlesCount] = await db.select({ count: sql<number>`count(*)` }).from(articles);
+    const [newsCount] = await db.select({ count: sql<number>`count(*)` }).from(news);
+    const [innovationsCount] = await db.select({ count: sql<number>`count(*)` }).from(innovations);
+    const [usersCount] = await db.select({ count: sql<number>`count(*)` }).from(users);
+    const [viewsSum] = await db.select({ sum: sql<number>`coalesce(sum(${articles.views}), 0)` }).from(articles);
+
+    const statsData = {
+      totalArticles: Number(articlesCount.count) || 0,
+      totalNews: Number(newsCount.count) || 0,
+      totalInnovations: Number(innovationsCount.count) || 0,
+      totalUsers: Number(usersCount.count) || 0,
+      totalViews: Number(viewsSum.sum) || 0,
       updatedAt: new Date(),
     };
-    return this.stats;
+
+    const existing = await db.select().from(statistics).limit(1);
+    if (existing.length > 0) {
+      const [updated] = await db.update(statistics)
+        .set(statsData)
+        .where(eq(statistics.id, existing[0].id))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db.insert(statistics).values(statsData).returning();
+      return created;
+    }
+  }
+
+  // Email Verification
+  async createVerificationToken(userId: string, token: string, expiresAt: Date): Promise<EmailVerificationToken> {
+    const [verificationToken] = await db.insert(emailVerificationTokens).values({
+      userId,
+      token,
+      expiresAt,
+    }).returning();
+    return verificationToken;
+  }
+
+  async getVerificationToken(token: string): Promise<EmailVerificationToken | undefined> {
+    const result = await db.select()
+      .from(emailVerificationTokens)
+      .where(eq(emailVerificationTokens.token, token))
+      .limit(1);
+    return result[0];
+  }
+
+  async deleteVerificationToken(token: string): Promise<boolean> {
+    const result = await db.delete(emailVerificationTokens)
+      .where(eq(emailVerificationTokens.token, token))
+      .returning();
+    return result.length > 0;
+  }
+
+  async verifyUserEmail(userId: string): Promise<User | undefined> {
+    const [updated] = await db.update(users)
+      .set({ emailVerified: true })
+      .where(eq(users.id, userId))
+      .returning();
+    return updated;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new PostgresStorage();
