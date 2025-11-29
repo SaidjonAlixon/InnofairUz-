@@ -61,7 +61,7 @@ export default function Header() {
                     </>
                   ) : item.id === "ideas-club" ? (
                     <>
-                      G'oyalar<br />klubi
+                      Yoshlar<br />klubi
                     </>
                   ) : (
                     item.name
