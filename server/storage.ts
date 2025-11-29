@@ -532,7 +532,7 @@ export class PostgresStorage implements IStorage {
       innovationId: commentData.innovationId || null,
       parentId: commentData.parentId || null,
       likes: 0,
-      approved: autoApprove, // Auto-approve for general discussions (G'oyalar klubi)
+      approved: autoApprove, // Auto-approve for general discussions (Yoshlar klubi)
     }).returning();
     return comment;
   }

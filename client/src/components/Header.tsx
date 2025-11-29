@@ -15,7 +15,7 @@ const navItems = [
   { id: "media", name: "Media markaz", path: "/media" },
   { id: "products", name: "Tijorat mahsulotlari", path: "/mahsulotlar" },
   { id: "solutions", name: "Hududiy yechimlar", path: "/yechimlar" },
-  { id: "ideas-club", name: "G'oyalar klubi", path: "/goyalar-klubi" },
+  { id: "ideas-club", name: "Yoshlar klubi", path: "/yoshlar-klubi" },
   { id: "collab", name: "Hamkorlik va fikrlar", path: "/hamkorlik" },
 ];
 
@@ -164,7 +164,7 @@ export default function Header() {
                     </>
                   ) : item.id === "ideas-club" ? (
                     <>
-                      G'oyalar<br />klubi
+                      Yoshlar<br />klubi
                     </>
                   ) : (
                     item.name

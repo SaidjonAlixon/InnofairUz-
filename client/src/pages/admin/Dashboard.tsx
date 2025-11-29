@@ -1315,7 +1315,7 @@ export default function AdminDashboard() {
                   <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                     <CardTitle className="flex items-center gap-2">
                       <MessageSquare className="h-5 w-5" />
-                      Barcha sharhlar (G'oyalar klubi)
+                      Barcha sharhlar (Yoshlar klubi)
                     </CardTitle>
                     <Badge variant="secondary">
                       {allComments.filter(c => !c.articleId && !c.newsId && !c.innovationId).length} ta post

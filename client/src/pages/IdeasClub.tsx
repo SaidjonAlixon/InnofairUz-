@@ -57,7 +57,7 @@ export default function IdeasClub() {
   // Filter approved comments that are not tied to specific content (general discussions)
   const discussionPosts = useMemo(() => {
     // Filter for general discussion posts (no articleId, newsId, innovationId)
-    // In G'oyalar klubi, all general discussion posts are shown (they are auto-approved)
+    // In Yoshlar klubi, all general discussion posts are shown (they are auto-approved)
     const posts = allComments
       .filter((comment) => {
         // Show only general discussion posts (not tied to articles, news, or innovations)
@@ -244,9 +244,9 @@ export default function IdeasClub() {
             <Sparkles className="h-4 w-4" />
             Community Forum
           </Badge>
-          <h1 className="text-4xl font-bold">G'oyalar klubi</h1>
+          <h1 className="text-4xl font-bold">Yoshlar klubi</h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Innovatsion g'oyalar, fikrlar va tajribalarni baham ko'ring. Bu yerda siz boshqa innovatorlar bilan suhbatlashishingiz va yangi loyihalar haqida muhokama qilishingiz mumkin.
+            Yoshlar uchun innovatsion g'oyalar, fikrlar va tajribalarni baham ko'ring. Bu yerda siz boshqa yoshlar bilan suhbatlashishingiz va yangi loyihalar haqida muhokama qilishingiz mumkin.
           </p>
         </div>
 

@@ -41,7 +41,7 @@ function AppRoutes() {
       <Route path="/mahsulotlar" component={Products} />
       <Route path="/yechimlar" component={Solutions} />
       <Route path="/hamkorlik" component={Collaboration} />
-      <Route path="/goyalar-klubi" component={IdeasClub} />
+      <Route path="/yoshlar-klubi" component={IdeasClub} />
       <Route path="/auth/login" component={UserLogin} />
       <Route path="/auth/register" component={UserRegister} />
       <Route path="/auth/verify-email" component={VerifyEmail} />
